@@ -2,15 +2,29 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import io from 'socket.io-client'
 
-const CartItem = ({product, quantity, total, id}) => {
-  const [singleProduct, setSingleProduct] = useState()
-  const navigateTo = useNavigate()
+const socket = io('http://localhost:8000')
+
+const CartItem = ({product}) => {
+  const [quantity, setQuantity] = useState(product.quantity)
+  const [total, setTotal] = useState(product.totalPrice)
 
   useEffect(()=>{
-    setSingleProduct(product)
-  }, [singleProduct])
+    socket.on('singleProductUpdated', (updatedCart) => {
+      const updatedProduct = updatedCart.update.find(item => item._id === product._id)
+      if (updatedProduct) {
+        console.log(updatedProduct);
+        setQuantity(updatedProduct.quantity);
+        setTotal(updatedProduct.totalPrice);
+      }
+    })
+
+    return () => {
+      socket.off('singleProductUpdated')
+    }
+  },[product._id])
 
   const deleteItem = async(id) => {
     try {
@@ -23,10 +37,9 @@ const CartItem = ({product, quantity, total, id}) => {
     }
   }
 
-  async function increaseQuantity(id){
-    const { data } = await axios.put(`http://localhost:8000/api/v1/cart/increaseQuantity/${id}`, {}, {withCredentials: true})
-    window.location.reload()
-    toast.success(data.message)
+  async function increaseQuantity(_id){
+    socket.emit('updateSingleProductQuantity', { _id });
+    toast.success("Quantity Increased!")
   }
 
   async function decreaseQuantity(id){
@@ -96,7 +109,7 @@ const CartItem = ({product, quantity, total, id}) => {
             type="text"
             className="border-y border-gray-200 outline-none text-gray-900 font-semibold text-lg w-full max-w-[118px] min-w-[80px] placeholder:text-gray-900 py-[15px] text-center bg-transparent"
             readOnly
-            defaultValue={product.quantity}
+            value={quantity}
           />
           <button className="group rounded-r-full px-6 py-[18px] border border-gray-200 flex items-center justify-center shadow-sm shadow-transparent transition-all duration-500 hover:shadow-gray-200 hover:border-gray-300 hover:bg-gray-50" onClick={()=>increaseQuantity(product._id)}>
             <svg
@@ -131,7 +144,7 @@ const CartItem = ({product, quantity, total, id}) => {
           </button>
         </div>
         <h6 className="text-indigo-600 lg:pl-14 font-manrope font-bold text-2xl leading-9 w-full max-w-[176px] text-center">
-          ₹{product.totalPrice}
+          ₹{total}
         </h6>
         <button className="group rounded-r-full" onClick={()=>deleteItem(product._id)}>
           <MdDeleteForever className=" text-3xl text-red-500"/>
