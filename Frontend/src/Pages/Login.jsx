@@ -3,32 +3,33 @@ import Header from "../Components/Header";
 import Footer from "../Components/Footer";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
-import { Context } from "../main";
+import { toast } from 'react-hot-toast'
+import { useRecoilState } from "recoil";
+import { authState } from '../State/Atom'
 
 const Login = () => {
-  const { isAuthenticated, setIsAuthenticated, setUser } = useContext(Context)
-
   const [ username, setUsername ] = useState("")
   const [ password, setPassword ] = useState("")
+  const [ auth, setAuth ] = useRecoilState(authState)
   const navigateTo = useNavigate()
+
+  // const fetchUser = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:8000/api/v1/user/customer/me",
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+  //     setIsAuthenticated(true);
+  //     setUser(response.data.user);
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/api/v1/user/customer/me",
-          {
-            withCredentials: true,
-          }
-        );
-        setIsAuthenticated(true);
-        setUser(response.data.user);
-      } catch (error) {
-        console.log(error)
-      }
-    };
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/user/signin",
@@ -39,16 +40,20 @@ const Login = () => {
         }
       );
       if(response.data){
-        fetchUser()
-        navigateTo("/")
-        toast.success(response.data.message)
+        const { token, user } = response.data
+        setAuth({
+          token,
+          isAuthenticated: true,
+          user,
+        })
+        toast.success(response.data.message);
       }
     } catch (error) {
       toast.error(error.response.data.message)
     }
   };
 
-  if(isAuthenticated) return <Navigate to={'/'}/>
+  if(auth.isAuthenticated) return <Navigate to={'/'}/>
 
   return (
     <>

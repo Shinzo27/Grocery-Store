@@ -2,24 +2,22 @@ import React, { useContext } from 'react'
 import Button from '../Components/Shared/Button'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { Context } from '../main'
 import { useNavigate } from 'react-router-dom'
 
 const ProductCard = ({ id, img, ProductName, ProductPrice}) => {
   const navigateTo = useNavigate()
-  const {user, isAuthenticated} = useContext(Context)
   async function addToCart(userId, productId, quantity){
-    if(isAuthenticated){
-      try {
-        const { data } = await axios.post(`http://localhost:8000/api/v1/cart/addToCart/${productId}`, {quantity}, {withCredentials: true})
-        toast.success(data.message)
-      } catch (error) {
-        toast.error(error.response.data.message);
-      }
-    } else {
-      toast.error("User is not loggedin!")
-      navigateTo('/login')
-    }
+    // if(isAuthenticated){
+    //   try {
+    //     const { data } = await axios.post(`http://localhost:8000/api/v1/cart/addToCart/${productId}`, {quantity}, {withCredentials: true})
+    //     toast.success(data.message)
+    //   } catch (error) {
+    //     toast.error(error.response.data.message);
+    //   }
+    // } else {
+    //   toast.error("User is not loggedin!")
+    //   navigateTo('/login')
+    // }
   }
 
   return (

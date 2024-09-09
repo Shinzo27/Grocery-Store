@@ -8,17 +8,12 @@ import About from './Pages/About'
 import Signup from './Pages/Signup'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useContext, useEffect } from 'react'
-import { Context } from './main'
-import axios from 'axios'
 import PaymentSuccess from './Pages/PaymentSuccess'
 import UserDetails from './Pages/UserDetails'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
-  const { isAuthenticated, setIsAuthenticated, user, setUser} = useContext(Context)
-
   return (
     <BrowserRouter>
       <Header/>
@@ -33,7 +28,7 @@ function App() {
           <Route path='/userdetails' element={<UserDetails/>}/>
         </Routes>
       <Footer/>
-      <ToastContainer position='top-center'/>
+      <Toaster position='top-center'/>
     </BrowserRouter>
   )
 }

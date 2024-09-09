@@ -7,11 +7,9 @@ import driedFruit1 from "../assets/driedfruit1.jpg";
 import CartItem from "../Components/CartItem";
 import { toast } from "react-toastify";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Context } from "../main";
 
 
 const Cart = () => {
-  const { isAuthenticated, user } = useContext(Context);
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState();
 

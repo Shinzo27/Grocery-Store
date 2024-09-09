@@ -4,15 +4,16 @@ import { CgProfile } from "react-icons/cg";
 import { HiMenu } from "react-icons/hi";
 import { IoMdClose } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import { Context } from "../main";
 import { LuLogOut } from "react-icons/lu";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import { useRecoilState } from "recoil";
+import { authState } from "../State/Atom";
 
 const Header = () => {
   const [toggleButton, setToggleButton] = useState(false);
-  const { isAuthenticated, setIsAuthenticated, user, setUser } =
-    useContext(Context);
+  const [auth, setAuth] = useRecoilState(authState)
+
   const MenuLinks = [
     {
       id: 1,
@@ -29,10 +30,10 @@ const Header = () => {
       name: "About",
       link: "/about",
     },
-    isAuthenticated
+    auth.isAuthenticated
       ? {
           id: 4,
-          name: user.username,
+          name: auth.user.username,
           link: "/profile",
         }
       : {
@@ -47,9 +48,11 @@ const Header = () => {
     try {
         const { data } = await axios.get("http://localhost:8000/api/v1/user/customer/logout", {withCredentials: true,})
         if(data.success) {
-          setIsAuthenticated(false);
-          setUser({});
-          navigateTo('/')
+          setAuth({
+            token: null,
+            isAuthenticated: false,
+            user: null,
+          })
           toast.success(data.message);
         } else {
           console.log("Something went wrong");
@@ -85,7 +88,7 @@ const Header = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4 text-2xl">
-              {isAuthenticated ? (
+              {auth.isAuthenticated ? (
                 <div className="flex items-center gap-4 text-2xl">
                   <button>
                     <Link to={"/cart"}>
@@ -140,12 +143,12 @@ const Header = () => {
           >
             About
           </Link>
-          {isAuthenticated ? (
+          {auth.isAuthenticated ? (
             <Link
               to="/profile"
               className="block mt-4 lg:inline-block lg:mt-0 text-white-200 mr-4 pb-5 hover:text-orange-500"
             >
-              {user.username}
+              {auth.user.username}
             </Link>
           ) : (
             <Link

@@ -1,25 +1,13 @@
-import React, {createContext, useState} from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
-export const Context = createContext({isAuthenticated: false})
-
-const AppWrapper = () =>{
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState({})
-  
-  return (
-    <Context.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser }}> 
-      <App/>
-    </Context.Provider>
-  )
-}
+import { RecoilRoot } from 'recoil'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <AppWrapper/>
-  </React.StrictMode>
+  <RecoilRoot>
+    <App/>
+  </RecoilRoot>
 )
