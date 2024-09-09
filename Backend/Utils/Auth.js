@@ -5,7 +5,10 @@ export const generateToken = (user, message, stautsCode, res) => {
     const cookieName = "CustomerToken"
     res.cookie(cookieName, token, {
       httpOnly: true,
-      sameSite: 'None'
+      secure: true,
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 1000 * 1,
+      path: "/",
     })
     return res
       .status(stautsCode)
