@@ -111,14 +111,21 @@ io.on('connection', (socket, next) => {
 
     socket.on('deleteSingleProduct', async (data) => {
         const { _id } = data;
+    
+        const update = await Cart.findOneAndDelete({_id})
 
-        const update = await Cart.deleteOne({_id})
+        const cartItems = await Cart.find({})
 
-        if(update) {
-            socket.emit('cartUpdated', {
-                update: [update]
-            })
-        }
+        console.log(cartItems);
+        await socket.emit('cartUpdated', {
+            cartItems
+        })
+        console.log("socket emitted!");
+    });
+
+    socket.on('testEvent', () => {
+        console.log('Test event received from client');
+        socket.emit('testResponse', 'This is a test response from the server');
     });
 
     socket.on('disconnect', () => {

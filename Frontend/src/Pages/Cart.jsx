@@ -26,19 +26,24 @@ const Cart = () => {
     }
   };
 
-  // useEffect(() => {
-  //   socket.on('cartUpdated', (updatedCart) => {
-  //     const updatedProduct = updatedCart.update.find(item => item._id === product._id)
-  //     if (updatedProduct) {
-  //       setCartItems(updatedCart.update);
-  //       calculateTotal(updatedCart.update);
-  //     }
-  //   })
+  useEffect(() => {
+    getCartItems();
+  }, []);
 
-  //   return () => {
-  //     socket.off('cartUpdated')
-  //   }
-  // },[])
+  useEffect(() => {
+    socket.on('cartUpdated', (updatedCart) => {
+      console.log(updatedCart);
+      const updatedProduct = updatedCart.cartItems.find(item => item._id === product._id)
+      if (updatedProduct) {
+        setCartItems(updatedCart.update);
+        calculateTotal(updatedCart.update);
+      }
+    })
+
+    return () => {
+      socket.off('cartUpdated')
+    }
+  }, [])
 
   //delete cart item using handleQuantityChange approach
 
@@ -59,14 +64,14 @@ const Cart = () => {
     calculateTotal(updatedCart);
   };
 
+  
+
   const checkoutHandler = () =>{
     navigateTo('/userdetails', { state: total})
     // <Navigate to={'/userdetails'} state={total}/>
   }
 
-  useEffect(() => {
-    getCartItems();
-  }, []);
+  
 
   return (
     <>
