@@ -73,8 +73,7 @@ app.get('/', (req,res)=>{
 })
 
 io.on('connection', (socket, next) => {
-    console.log('a user connected');
-
+    //increase quantity
     socket.on('updateSingleProductQuantity', async (data) => {
         const { _id } = data;
     
@@ -91,7 +90,7 @@ io.on('connection', (socket, next) => {
             update: [update]
         }) 
     });
-
+    //decrease quantity
     socket.on('decreaseSingleProductQuantity', async (data) => {
         const { _id } = data;
     
@@ -108,7 +107,7 @@ io.on('connection', (socket, next) => {
             update: [update]
         })
     });
-
+    //delete product from cart
     socket.on('deleteSingleProduct', async (data) => {
         const { _id } = data;
     
@@ -122,10 +121,6 @@ io.on('connection', (socket, next) => {
         await socket.emit('cartUpdated', {
             cartItems: cartItems
         })
-    });
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
     });
 });
 

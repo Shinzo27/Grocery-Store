@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { MdDeleteForever } from "react-i`cons`/md";
+import { MdDeleteForever } from "react-icons/md"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import io from 'socket.io-client'
