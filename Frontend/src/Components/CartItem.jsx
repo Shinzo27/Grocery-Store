@@ -1,13 +1,13 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { MdDeleteForever } from "react-icons/md";
+import { MdDeleteForever } from "react-i`cons`/md";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import io from 'socket.io-client'
 
 const socket = io('http://localhost:8000')
 
-const CartItem = ({product, onQuantityChange}) => {
+const CartItem = ({product, onQuantityChange, onDelete}) => {
   const [quantity, setQuantity] = useState(product.quantity)
   const [total, setTotal] = useState(product.totalPrice)
 
@@ -27,8 +27,7 @@ const CartItem = ({product, onQuantityChange}) => {
   },[product._id, onQuantityChange])
 
   const deleteItem = async(id) => {
-    socket.emit('deleteSingleProduct', { _id: id });
-    toast.success("Item removed successfully!")
+    onDelete(id);
   }
 
   async function increaseQuantity(_id){

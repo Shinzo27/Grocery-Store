@@ -5,7 +5,7 @@ import Footer from "../Components/Footer";
 import driedFruit2 from "../assets/driedfruit2.jpg";
 import driedFruit1 from "../assets/driedfruit1.jpg";
 import CartItem from "../Components/CartItem";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import io from 'socket.io-client'
 
@@ -32,12 +32,8 @@ const Cart = () => {
 
   useEffect(() => {
     socket.on('cartUpdated', (updatedCart) => {
-      console.log(updatedCart);
-      const updatedProduct = updatedCart.cartItems.find(item => item._id === product._id)
-      if (updatedProduct) {
-        setCartItems(updatedCart.update);
-        calculateTotal(updatedCart.update);
-      }
+      setCartItems(updatedCart.cartItems);
+      calculateTotal(updatedCart.cartItems);
     })
 
     return () => {
@@ -64,7 +60,10 @@ const Cart = () => {
     calculateTotal(updatedCart);
   };
 
-  
+  const handleDelete = (id) => {
+    socket.emit('deleteSingleProduct', { _id: id });
+    toast.success("Item removed successfully!")
+  }
 
   const checkoutHandler = () =>{
     navigateTo('/userdetails', { state: total})
@@ -94,7 +93,7 @@ const Cart = () => {
             </div>
             {cartItems.map((item) => (
               <div key={item._id}>
-                <CartItem product={item} onQuantityChange={handleQuantityChange} />
+                <CartItem product={item} onQuantityChange={handleQuantityChange} onDelete={handleDelete} />
               </div>
             ))}
             <div className="bg-gray-50 rounded-xl p-6 w-full mb-8 max-lg:max-w-xl max-lg:mx-auto">
