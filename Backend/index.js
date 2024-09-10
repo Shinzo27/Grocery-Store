@@ -8,7 +8,7 @@ import checkoutRouter from './Routes/Order.js'
 import cookieParser from 'cookie-parser'
 import cloudinary from 'cloudinary'
 import fileUpload from 'express-fileupload'
-import { errorMiddleware } from './Middleware/ErrorHandler.js'
+import ErrorHandler, { errorMiddleware } from './Middleware/ErrorHandler.js'
 import { checkForAuthentication } from './Utils/Auth.js'
 import categoryRouter from './Routes/Category.js'
 import cors from 'cors'
@@ -72,7 +72,7 @@ app.get('/', (req,res)=>{
     res.send("Hello World")
 })
 
-io.on('connection', (socket) => {
+io.on('connection', (socket, next) => {
     console.log('a user connected');
 
     socket.on('updateSingleProductQuantity', async (data) => {
@@ -82,7 +82,6 @@ io.on('connection', (socket) => {
         const productId = cartProduct.productId
         const prod = await Product.findOne({_id: productId})
 
-
         const newPrice = parseFloat(cartProduct.totalPrice) + parseFloat(prod.price);
         const newQuantity = parseInt(cartProduct.quantity) + 1;
 
@@ -91,7 +90,36 @@ io.on('connection', (socket) => {
         socket.emit('singleProductUpdated', {
             update: [update]
         }) 
-      });
+    });
+
+    socket.on('decreaseSingleProductQuantity', async (data) => {
+        const { _id } = data;
+    
+        const cartProduct = await Cart.findOne({_id})
+        const productId = cartProduct.productId
+        const prod = await Product.findOne({_id: productId})
+
+        const newPrice = parseFloat(cartProduct.totalPrice) - parseFloat(prod.price);
+        const newQuantity = parseInt(cartProduct.quantity) - 1;
+
+        const update = await Cart.findOneAndUpdate({_id}, {totalPrice: newPrice, quantity: newQuantity}, {new: true})
+
+        socket.emit('singleProductUpdated', {
+            update: [update]
+        })
+    });
+
+    socket.on('deleteSingleProduct', async (data) => {
+        const { _id } = data;
+
+        const update = await Cart.deleteOne({_id})
+
+        if(update) {
+            socket.emit('cartUpdated', {
+                update: [update]
+            })
+        }
+    });
 
     socket.on('disconnect', () => {
         console.log('user disconnected');

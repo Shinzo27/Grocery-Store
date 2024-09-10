@@ -7,7 +7,9 @@ import driedFruit1 from "../assets/driedfruit1.jpg";
 import CartItem from "../Components/CartItem";
 import { toast } from "react-toastify";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import io from 'socket.io-client'
 
+const socket = io('http://localhost:8000')
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -24,6 +26,22 @@ const Cart = () => {
     }
   };
 
+  // useEffect(() => {
+  //   socket.on('cartUpdated', (updatedCart) => {
+  //     const updatedProduct = updatedCart.update.find(item => item._id === product._id)
+  //     if (updatedProduct) {
+  //       setCartItems(updatedCart.update);
+  //       calculateTotal(updatedCart.update);
+  //     }
+  //   })
+
+  //   return () => {
+  //     socket.off('cartUpdated')
+  //   }
+  // },[])
+
+  //delete cart item using handleQuantityChange approach
+
   const calculateTotal = (items) => {
     const total = items.reduce(
       (sum, item) => sum + item.productId.price * item.quantity,
@@ -32,6 +50,14 @@ const Cart = () => {
     setTotal(total);
   };
   const navigateTo = useNavigate()
+
+  const handleQuantityChange = (updatedProduct) => {
+    const updatedCart = cartItems.map((item) =>
+      item._id === updatedProduct._id ? { ...item, quantity: updatedProduct.quantity } : item
+    );
+    setCartItems(updatedCart);
+    calculateTotal(updatedCart);
+  };
 
   const checkoutHandler = () =>{
     navigateTo('/userdetails', { state: total})
@@ -63,7 +89,7 @@ const Cart = () => {
             </div>
             {cartItems.map((item) => (
               <div key={item._id}>
-                <CartItem product={item} />
+                <CartItem product={item} onQuantityChange={handleQuantityChange} />
               </div>
             ))}
             <div className="bg-gray-50 rounded-xl p-6 w-full mb-8 max-lg:max-w-xl max-lg:mx-auto">

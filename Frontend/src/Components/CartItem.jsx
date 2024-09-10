@@ -7,7 +7,7 @@ import io from 'socket.io-client'
 
 const socket = io('http://localhost:8000')
 
-const CartItem = ({product}) => {
+const CartItem = ({product, onQuantityChange}) => {
   const [quantity, setQuantity] = useState(product.quantity)
   const [total, setTotal] = useState(product.totalPrice)
 
@@ -15,26 +15,20 @@ const CartItem = ({product}) => {
     socket.on('singleProductUpdated', (updatedCart) => {
       const updatedProduct = updatedCart.update.find(item => item._id === product._id)
       if (updatedProduct) {
-        console.log(updatedProduct);
         setQuantity(updatedProduct.quantity);
         setTotal(updatedProduct.totalPrice);
+        onQuantityChange(updatedProduct)
       }
     })
 
     return () => {
       socket.off('singleProductUpdated')
     }
-  },[product._id])
+  },[product._id, onQuantityChange])
 
   const deleteItem = async(id) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/v1/cart/removeItem/${id}`, {withCredentials: true}).then((res)=>{
-        window.location.reload()
-        toast.success(res.data.message)
-      })
-    } catch (error) {
-      toast.error(error.response.data.message)
-    }
+    socket.emit('deleteSingleProduct', { _id: id });
+    toast.success("Item removed successfully!")
   }
 
   async function increaseQuantity(_id){
@@ -42,15 +36,13 @@ const CartItem = ({product}) => {
     toast.success("Quantity Increased!")
   }
 
-  async function decreaseQuantity(id){
-    try {
-      const { data } = await axios.put(`http://localhost:8000/api/v1/cart/reduceQuantity/${id}`, {}, {withCredentials: true})
-      window.location.reload()
-      toast.success(data.message)
-    } catch (error) {
-      // toast.error(error)
-      toast.error(error.response.data.message);
-    }
+  async function decreaseQuantity(_id){
+      if(product.quantity == 1) {
+        return toast.error("Quantity cannot be decreased more than 1!")
+      } else {
+        socket.emit('decreaseSingleProductQuantity', { _id });
+        toast.success("Quantity Decreased!")
+      }
   }
 
   return (
