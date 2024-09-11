@@ -47,6 +47,7 @@ const Login = () => {
           user,
         })
         toast.success(response.data.message);
+        navigateTo('/')
       }
     } catch (error) {
       toast.error(error.response.data.message)

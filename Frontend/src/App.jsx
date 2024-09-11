@@ -8,7 +8,6 @@ import About from './Pages/About'
 import Signup from './Pages/Signup'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
-import 'react-toastify/dist/ReactToastify.css';
 import PaymentSuccess from './Pages/PaymentSuccess'
 import UserDetails from './Pages/UserDetails'
 import { Toaster } from 'react-hot-toast'
