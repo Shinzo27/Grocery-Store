@@ -41,8 +41,6 @@ const Cart = () => {
     }
   }, [])
 
-  //delete cart item using handleQuantityChange approach
-
   const calculateTotal = (items) => {
     const total = items.reduce(
       (sum, item) => sum + item.productId.price * item.quantity,

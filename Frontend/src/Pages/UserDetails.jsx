@@ -3,6 +3,8 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../../public/razorpay_logo.png";
 import { toast } from "react-toastify";
+import { useRecoilValue } from "recoil";
+import { authState } from "../State/Atom";
 
 const UserDetails = () => {
   const location = useLocation();
@@ -12,6 +14,8 @@ const UserDetails = () => {
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
   const navigateTo = useNavigate()
+  const auth = useRecoilValue(authState)
+  const user = auth.user
 
   const userDetails = {
     address,
@@ -20,74 +24,74 @@ const UserDetails = () => {
     pincode,
   };
 
-  // const checkoutHandler = async () => {
-  //   const {
-  //     data: { order },
-  //   } = await axios.post(
-  //     "http://localhost:8000/api/v1/checkout/createOrder",
-  //     { amount: total },
-  //     { withCredentials: true }
-  //   );
+  const checkoutHandler = async () => {
+    const {
+      data: { order },
+    } = await axios.post(
+      "http://localhost:8000/api/v1/checkout/createOrder",
+      { amount: total },
+      { withCredentials: true }
+    );
 
-  //   const options = {
-  //     key: "rzp_test_ObIKOxkah2XMbc",
-  //     amount: order.amount,
-  //     currency: "INR",
-  //     name: "Patel's Dryfruit and Masala",
-  //     description: "Grocery store",
-  //     image: { logo },
-  //     order_id: order.id,
-  //     handler: function (response) {
-  //        handlePaymentSuccess(response,userDetails)
-  //     },
-  //     prefill: {
-  //       name: user.name,
-  //     },
-  //     notes: {
-  //       address: userDetails.address,
-  //       city: userDetails.city,
-  //       state: userDetails.state,
-  //       pincode: userDetails.pincode,
-  //     },
-  //     theme: {
-  //       color: "#5e30eb",
-  //     },
-  //   };
-  //   const razor = new window.Razorpay(options);
-  //   razor.on("payment.error", function (response) {
-  //     toast.error("Payment Failed");
-  //     console.error(response.error);
-  //   });
-  //   razor.open();
-  // };
+    const options = {
+      key: "rzp_test_ObIKOxkah2XMbc",
+      amount: order.amount,
+      currency: "INR",
+      name: "Patel's Dryfruit and Masala",
+      description: "Grocery store",
+      image: { logo },
+      order_id: order.id,
+      handler: function (response) {
+         handlePaymentSuccess(response,userDetails)
+      },
+      prefill: {
+        name: user.username,
+      },
+      notes: {
+        address: userDetails.address,
+        city: userDetails.city,
+        state: userDetails.state,
+        pincode: userDetails.pincode,
+      },
+      theme: {
+        color: "#5e30eb",
+      },
+    };
+    const razor = new window.Razorpay(options);
+    razor.on("payment.error", function (response) {
+      toast.error("Payment Failed");
+      console.error(response.error);
+    });
+    razor.open();
+  };
 
-    // const handlePaymentSuccess = async (response, userDetails) => {
-    //   const paymentData = {
-    //     razorpay_order_id: response.razorpay_order_id,
-    //     razorpay_payment_id: response.razorpay_payment_id,
-    //     razorpay_signature: response.razorpay_signature,
-    //     userDetails: userDetails,
-    //   }
+    const handlePaymentSuccess = async (response, userDetails) => {
+      const paymentData = {
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+        userDetails: userDetails,
+      }
 
-    //   try {
-    //     const verifyResponse = await axios.post(
-    //       "http://localhost:8000/api/v1/checkout/verifyPayment",
-    //       paymentData
-    //     );
-    //     const verifyData = verifyResponse.data;
-    //     if (verifyData.success) {
-    //       const res = await axios.post("http://localhost:8000/api/v1/checkout/complete", { userDetails, razorpay_order_id: paymentData.razorpay_order_id, total }, {withCredentials: true});
-    //       if(res.data.success){
-    //          toast.success("Your order is placed!")
-    //          navigateTo('/paymentSuccess')
-    //       }
-    //     } else {
-    //       console.log("Payment Verification Failed");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error verifying payment:", error);
-    //   }
-    // };
+      try {
+        const verifyResponse = await axios.post(
+          "http://localhost:8000/api/v1/checkout/verifyPayment",
+          paymentData
+        );
+        const verifyData = verifyResponse.data;
+        if (verifyData.success) {
+          const res = await axios.post("http://localhost:8000/api/v1/checkout/complete", { userDetails, razorpay_order_id: paymentData.razorpay_order_id, total }, {withCredentials: true});
+          if(res.data.success){
+             toast.success("Your order is placed!")
+             navigateTo('/paymentSuccess')
+          }
+        } else {
+          console.log("Payment Verification Failed");
+        }
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+      }
+    };
 
   if(total === "") return <Navigate to={'/cart'}/>
   return (
