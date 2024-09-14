@@ -6,9 +6,7 @@ interface Props {}
 const Page: NextPage<Props> = ({}) => {
   return (
     <DefaultLayout>
-      <div>Stocks
-        
-      </div>
+      <div>Stocks</div>
     </DefaultLayout>
   )
   

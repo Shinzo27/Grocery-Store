@@ -35,6 +35,12 @@ var orderSchema = new Schema({
     orderId: {
         type: String,
         required:true
+    },
+    status: {
+        type: String,
+        required:true,
+        enum: ['pending', 'delivered', 'cancelled'],
+        default: 'pending'
     }
 });
 
