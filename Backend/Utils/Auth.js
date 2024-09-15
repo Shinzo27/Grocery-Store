@@ -34,3 +34,23 @@ export function checkForAuthentication(cookieName) {
     return next()
   }
 }
+
+export const generateAdminToken = (user, message, stautsCode, res) => {
+  const token = user.generateWebToken();
+  const cookieName = "AdminToken";
+  res.cookie(cookieName, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 1000 * 1,
+    path: "/",
+  });
+  return res
+    .status(stautsCode)
+    .json({
+      success: true,
+      message,
+      user,
+      token,
+    });
+}

@@ -1,6 +1,6 @@
 import { SignIn, SignUp } from "../config/type.js";
 import User from "../Models/Users.js";
-import { generateToken } from "../Utils/Auth.js";
+import { generateAdminToken, generateToken } from "../Utils/Auth.js";
 import { ErrorHandler } from "../Middleware/ErrorHandler.js";
 
 export const userSignin = async (req, res, next) => {
@@ -37,8 +37,8 @@ export const userSignUp = async (req, res, next) => {
     BodyParser.password === ""
   )
     return next(new ErrorHandler("Fill all the details properly!", 400));
-
-  const parsedPayload = SignUp.safeParse(BodyParser);
+    const parsedPayload = SignUp.safeParse(BodyParser);
+    console.log(parsedPayload.error);
   if (!parsedPayload.success)
     return next(new ErrorHandler("Fill all the details properly", 400));
 
@@ -91,4 +91,29 @@ export const logout = async (req, res) => {
       success: true,
       message: "Customer Logged Out Successfully.",
     });
+};
+
+export const adminSignin = async (req, res, next) => {
+  const BodyParser = req.body;
+  const parsedPayload = SignIn.safeParse(BodyParser);
+
+  if (!parsedPayload.success) {
+    return next(new ErrorHandler("Fill details properly!", 400));
+  }
+
+  const isExists = await User.findOne({
+    username: parsedPayload.data.username,
+    role: "Admin",
+  });
+
+  if (!isExists) return next(new ErrorHandler("User doesn't exists!", 400));
+
+  const isMatchedPassword = await isExists.comparePassword(
+    parsedPayload.data.password
+  );
+
+  if (!isMatchedPassword)
+    return next(new ErrorHandler("Password didn't matched!", 400));
+
+  generateAdminToken(isExists, "Login Successfull", 201, res);
 };

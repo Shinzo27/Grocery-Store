@@ -93,3 +93,10 @@ export const categoryProduct = async (req, res) => {
     product: productsByCategory
   })
 };
+
+export const getAllProducts  = async(req,res,next) => {
+  const products = await Product.find({});
+  res.json({
+    products
+  });
+}
