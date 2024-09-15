@@ -80,3 +80,11 @@ export const completePayment = async(req,res,next) => {
     })
   }
 }
+
+
+export const getOrders = async(req,res,next) => {
+  const orders = await Order.find({});
+  res.json({
+    orders
+  })
+}

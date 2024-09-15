@@ -1,86 +1,29 @@
+"use client";
+
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { NextPage } from "next";
-import Image from "next/image";
-import { BRAND } from "@/types/brand";
+import { useEffect, useState } from "react";
+import { Order } from "@/types/orders";
+import axios from "axios";
 
 interface Props {}
 
-const brandData: BRAND[] = [
-  {
-    logo: "/images/brand/brand-01.svg",
-    name: "Google",
-    visitors: 3.5,
-    revenues: "5,768",
-    sales: 590,
-    conversion: 4.8,
-  },
-  {
-    logo: "/images/brand/brand-02.svg",
-    name: "Twitter",
-    visitors: 2.2,
-    revenues: "4,635",
-    sales: 467,
-    conversion: 4.3,
-  },
-  {
-    logo: "/images/brand/brand-03.svg",
-    name: "Github",
-    visitors: 2.1,
-    revenues: "4,290",
-    sales: 420,
-    conversion: 3.7,
-  },
-  {
-    logo: "/images/brand/brand-04.svg",
-    name: "Vimeo",
-    visitors: 1.5,
-    revenues: "3,580",
-    sales: 389,
-    conversion: 2.5,
-  },
-  {
-    logo: "/images/brand/brand-05.svg",
-    name: "Facebook",
-    visitors: 3.5,
-    revenues: "6,768",
-    sales: 390,
-    conversion: 4.2,
-  },
-  {
-    logo: "/images/brand/brand-04.svg",
-    name: "Vimeo",
-    visitors: 1.5,
-    revenues: "3,580",
-    sales: 389,
-    conversion: 2.5,
-  },
-  {
-    logo: "/images/brand/brand-05.svg",
-    name: "Facebook",
-    visitors: 3.5,
-    revenues: "6,768",
-    sales: 390,
-    conversion: 4.2,
-  },
-  {
-    logo: "/images/brand/brand-04.svg",
-    name: "Vimeo",
-    visitors: 1.5,
-    revenues: "3,580",
-    sales: 389,
-    conversion: 2.5,
-  },
-  {
-    logo: "/images/brand/brand-05.svg",
-    name: "Facebook",
-    visitors: 3.5,
-    revenues: "6,768",
-    sales: 390,
-    conversion: 4.2,
-  },
-];
-
 const Page: NextPage<Props> = ({}) => {
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const fetchOrders = async() => {
+    try {
+      const { data } = await axios.get('http://localhost:8000/api/v1/checkout/allOrders', {withCredentials: true})
+      console.log(data.orders.status);
+      setOrders(data.orders);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(()=> {
+    fetchOrders();
+  }, [])
   return (
     <DefaultLayout>
       <div className="h-screen">
@@ -117,10 +60,10 @@ const Page: NextPage<Props> = ({}) => {
               </div>
             </div>
 
-            {brandData.map((brand, key) => (
+            {orders.map((order, key) => (
               <div
                 className={`grid grid-cols-3 sm:grid-cols-5 ${
-                  key === brandData.length - 1
+                  key === orders.length - 1
                     ? ""
                     : "border-b border-stroke dark:border-strokedark"
                 }`}
@@ -128,22 +71,22 @@ const Page: NextPage<Props> = ({}) => {
               >
                 <div className="flex items-center gap-3 p-2.5 xl:p-5">
                   <p className="hidden text-black dark:text-white sm:block">
-                    {brand.name}
+                    {order.orderId}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-center p-2.5 xl:p-5">
                   <p className="text-black dark:text-white">
-                    {brand.visitors}K
+                    ₹{order.total}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-center p-2.5 xl:p-5">
-                  <p className="text-meta-3">${brand.revenues}</p>
+                  <p className="text-meta-3">${order.pincode}</p>
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white">{brand.sales}</p>
+                  <p className="text-black dark:text-white">{order.status}</p>
                 </div>
               </div>
             ))}

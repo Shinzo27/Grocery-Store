@@ -16,8 +16,8 @@ const Page: NextPage<Props> = ({}) => {
 
   const getProducts = async () => {
     const { data } = await axios.get('http://localhost:8000/api/v1/product/allProducts', {withCredentials: true})
-    console.log(data);
-    setProducts(data);
+    console.log(data.products);
+    setProducts(data.products);
   };
 
   useEffect(() => {

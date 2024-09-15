@@ -117,3 +117,13 @@ export const adminSignin = async (req, res, next) => {
 
   generateAdminToken(isExists, "Login Successfull", 201, res);
 };
+
+export const getAdmin = async (req, res, next) => {
+  const admin = await User.find({
+    role: "Admin"
+  }).select("-password");
+
+  res.json({
+    admin
+  })
+}
