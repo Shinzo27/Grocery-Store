@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./Backend
+    ports:
+      - 8000:8000
+    environment:
+      - NODE_ENV=development
+  
+  frontend:
+    build: ./Frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+  
+  admin:
+    build: ./admin
+    ports:
+      - 3001:3001
+    environment:
+      - NODE_ENV=development
