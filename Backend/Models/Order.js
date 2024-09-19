@@ -42,7 +42,7 @@ var orderSchema = new Schema({
         enum: ['pending', 'delivered', 'cancelled'],
         default: 'pending'
     }
-});
+}, { timestamps: true });
 
 const Order = model('Order', orderSchema);
 

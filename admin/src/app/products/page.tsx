@@ -8,10 +8,12 @@ import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import connectDB from "@/lib/dbConnect";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface Props {}
 
 const Page: NextPage<Props> = ({}) => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
 
   const getProducts = async () => {
@@ -33,7 +35,7 @@ const Page: NextPage<Props> = ({}) => {
               Products
             </h4>
             <div>
-              <button className="btn btn-primary btn-sm mb-5 rounded-lg bg-zinc-600 p-3 font-semibold text-white dark:bg-blue-800">
+              <button className="btn btn-primary btn-sm mb-5 rounded-lg bg-zinc-600 p-3 font-semibold text-white dark:bg-blue-800" onClick={() => router.push("/add_product")}>
                 Add Product
               </button>
             </div>
