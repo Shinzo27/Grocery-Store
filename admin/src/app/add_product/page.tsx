@@ -1,9 +1,39 @@
+"use client";
+
 import { NextPage } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import { EventHandler, useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Props {}
 
 const Page: NextPage<Props> = ({}) => {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>();
+  const [category, setCategory] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
+    console.log(file?.type);
+    if (file && file.type.startsWith('image/')) {
+      setImage(file);
+    } else {
+      if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      toast.error('Please upload a valid image file (jpg, png, jpeg).');
+    }
+  };
+
+  const handleProductUpload = async (event: React.FormEvent) => {
+    event.preventDefault()
+    toast.success("New Product Uploaded");
+  };
+
   return (
     <DefaultLayout>
       <div className="h-screen">
@@ -23,7 +53,7 @@ const Page: NextPage<Props> = ({}) => {
             img
           */}
 
-          <form className="mx-auto max-w-sm w-96 text-black font-normal">
+          <form className="mx-auto max-w-sm w-96 text-black font-normal" onSubmit={handleProductUpload}>
             <div className="mb-5">
               <label
                 htmlFor="email"
@@ -37,6 +67,8 @@ const Page: NextPage<Props> = ({}) => {
                 className="bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 placeholder="Product Name"
                 required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="mb-5">
@@ -51,6 +83,8 @@ const Page: NextPage<Props> = ({}) => {
                 className="bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
                 placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
             <div className="mb-5">
@@ -66,6 +100,8 @@ const Page: NextPage<Props> = ({}) => {
                 className="bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
                 placeholder="Product Price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
             <div className="mb-5">
@@ -81,6 +117,8 @@ const Page: NextPage<Props> = ({}) => {
                 className="bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
                 placeholder="Total Quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
             <div className="mb-5">
@@ -94,6 +132,8 @@ const Page: NextPage<Props> = ({}) => {
                 id="productPrice"
                 className="bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
               >
                 <option value={'Dryfruit'}>Dryfruit</option>
                 <option value={'ColdDrink'}>ColdDrink</option>
@@ -114,13 +154,15 @@ const Page: NextPage<Props> = ({}) => {
                 id="productImage"
                 className=" dark:text-white bg-gray-50 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:shadow-sm-light block w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500  dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
+                onChange={handleFileChange}
+                ref={fileInputRef}
               />
             </div>
             <button
               type="submit"
               className="rounded-lg text-white font-bold text-lg bg-blue-700 px-5 py-2.5 text-center font hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Register new account
+              Add Product
             </button>
           </form>
         </div>
