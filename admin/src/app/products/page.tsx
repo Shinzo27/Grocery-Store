@@ -18,7 +18,6 @@ const Page: NextPage<Props> = ({}) => {
 
   const getProducts = async () => {
     const { data } = await axios.get('http://localhost:8000/api/v1/product/allProducts', {withCredentials: true})
-    console.log(data.products);
     setProducts(data.products);
   };
 
@@ -91,7 +90,7 @@ const Page: NextPage<Props> = ({}) => {
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white">{product.category}</p>
+                  <p className="text-black dark:text-white">{product.category.name}</p>
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
