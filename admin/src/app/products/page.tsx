@@ -1,12 +1,8 @@
 "use client";
-
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { NextPage } from "next";
-import Image from "next/image";
-import { BRAND } from "@/types/brand";
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
-import connectDB from "@/lib/dbConnect";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -40,7 +36,7 @@ const Page: NextPage<Props> = ({}) => {
             </div>
           </div>
           <div className="flex flex-col">
-            <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
+            <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-7">
               <div className="p-2.5 xl:p-5">
                 <h5 className="text-sm font-medium uppercase xsm:text-base">
                   Product Name
@@ -66,15 +62,25 @@ const Page: NextPage<Props> = ({}) => {
                   Description
                 </h5>
               </div>
+              <div className="hidden p-2.5 text-center sm:block xl:p-5">
+                <h5 className="text-sm font-medium uppercase xsm:text-base">
+                  Edit
+                </h5>
+              </div>
+              <div className="hidden p-2.5 text-center sm:block xl:p-5">
+                <h5 className="text-sm font-medium uppercase xsm:text-base">
+                  Delete
+                </h5>
+              </div>
             </div>
 
             {products.map((product, key) => (
               <div
-                className={`grid grid-cols-3 sm:grid-cols-5 ${key === products.length - 1 ? "" : "border-b border-stroke dark:border-strokedark"}`}
+                className={`grid grid-cols-3 sm:grid-cols-7 ${key === products.length - 1 ? "" : "border-b border-stroke dark:border-strokedark"}`}
                 key={key}
               >
                 <div className="flex items-center gap-3 p-2.5 xl:p-5">
-                  <p className="hidden text-black dark:text-white sm:block">
+                  <p className=" text-black dark:text-white sm:block">
                     {product.name}
                   </p>
                 </div>
@@ -94,10 +100,23 @@ const Page: NextPage<Props> = ({}) => {
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white text-wrap">
+                  <p className="text-black dark:text-white w-full h-16 overflow-hidden text-ellipsis whitespace-pre-line break-words">
                     {product.description}
                   </p>
                 </div>
+
+                <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
+                  <p className="text-black dark:text-white text-wrap">
+                    Edit
+                  </p>
+                </div>
+
+                <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
+                  <p className="text-black dark:text-white text-wrap">
+                    Delete
+                  </p>
+                </div>
+
               </div>
             ))}
           </div>
