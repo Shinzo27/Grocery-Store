@@ -1,7 +1,7 @@
 import Category from "../Models/Category.js";
 import Product from "../Models/Products.js";
 import ErrorHandler from "../Middleware/ErrorHandler.js";
-import { ProductType } from "../config/type.js";
+import { ProductType, updateProductType } from "../config/type.js";
 import cloudinary from "cloudinary";
 
 export const addProduct = async (req, res, next) => {
@@ -11,21 +11,25 @@ export const addProduct = async (req, res, next) => {
   const allowedFormats = ["image/png", "image/jpeg", "image/webp", "image/jpg"];
 
   if (!parsedPayload.success)
-    return next(new ErrorHandler("Fill all the details properly!", 400))
+    return next(new ErrorHandler("Fill all the details properly!", 400));
 
-  if (!allowedFormats.includes(img.mimetype)) return next(new ErrorHandler("File format not supported!", 400))
+  if (!allowedFormats.includes(img.mimetype))
+    return next(new ErrorHandler("File format not supported!", 400));
 
   const prodName = parsedPayload.data.name.toLowerCase();
 
   const isExists = await Product.findOne({ name: prodName });
 
-  if (isExists) return next(new ErrorHandler("Product already exists!", 400))
+  if (isExists) return next(new ErrorHandler("Product already exists!", 400));
 
   const cloudinaryResponse = await cloudinary.uploader.upload(img.tempFilePath);
 
-  if (!cloudinaryResponse || cloudinaryResponse.error) return next(new ErrorHandler("Something went wrong!", 400))
+  if (!cloudinaryResponse || cloudinaryResponse.error)
+    return next(new ErrorHandler("Something went wrong!", 400));
 
-  const getCategory = await Category.findOne({ name: parsedPayload.data.category })
+  const getCategory = await Category.findOne({
+    name: parsedPayload.data.category,
+  });
 
   const product = await Product.create({
     name: prodName,
@@ -33,7 +37,7 @@ export const addProduct = async (req, res, next) => {
     description: parsedPayload.data.description,
     quantity: parsedPayload.data.quantity,
     price: parsedPayload.data.price,
-    category: getCategory._id
+    category: getCategory._id,
   });
 
   if (product)
@@ -45,7 +49,7 @@ export const addProduct = async (req, res, next) => {
 
 export const getProduct = async (req, res) => {
   const filter = req.query.filter || "";
-  
+
   const products = await Product.find({
     $and: [
       {
@@ -90,25 +94,79 @@ export const categoryProduct = async (req, res) => {
     },
   ]);
   res.json({
-    product: productsByCategory
-  })
+    product: productsByCategory,
+  });
 };
 
-export const getAllProducts  = async(req,res,next) => {
-  const products = await Product.find({}).populate('category');
+export const getAllProducts = async (req, res, next) => {
+  const products = await Product.find({}).populate("category");
   res.json({
-    products
+    products,
   });
-}
+};
 
 export const getSingleProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
   res.json({
-    product
+    product,
   });
 };
 
-export const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
   const productId = req.params.id;
-  console.log("Update Product");
+  const bodyParser = req.body;
+  const img = req.files.img;
+  const parsedPayload = updateProductType.safeParse(bodyParser);
+  const allowedFormats = ["image/png", "image/jpeg", "image/webp", "image/jpg"];
+
+  if (parsedPayload.error) {
+    return next(new ErrorHandler("Fill all the details properly!", 400));
+  }
+
+  if(img.size > 5242880)
+    return next(new ErrorHandler("File size should be less than 5MB!", 400));
+
+  if (!allowedFormats.includes(img.mimetype))
+    return next(new ErrorHandler("File format not supported!", 400));
+
+  const prodName = parsedPayload.data.name.toLowerCase();
+
+  const isExists = await Product.findOne({ name: prodName });
+
+  if (!isExists) return next(new ErrorHandler("Product not found!", 400));
+
+  const cloudinaryResponse = await cloudinary.uploader.upload(img.tempFilePath);
+
+  if (!cloudinaryResponse || cloudinaryResponse.error)
+    return next(new ErrorHandler("Something went wrong!", 400));
+
+  const getCategory = await Category.findOne({
+    name: parsedPayload.data.category,
+  });
+
+  if(!getCategory) return next(new ErrorHandler("Select a valid category!", 400));
+
+  try {
+    const product = await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        name: prodName,
+        imgUrl: cloudinaryResponse.secure_url,
+        description: parsedPayload.data.description,
+        price: parsedPayload.data.price,
+        category: getCategory._id,
+      }
+    );
+
+    if (product)
+      return res.status(200).json({
+        success: true,
+        message: "Product Updated Successfully!",
+      });
+      else {
+        console.log("Something went wrong!");
+      }
+  } catch (error) {
+    console.log(error);
+  }
 };

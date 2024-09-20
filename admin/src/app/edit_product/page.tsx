@@ -1,4 +1,5 @@
 "use client"
+import Loader from '@/components/common/Loader';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import axios from 'axios';
 import { NextPage } from 'next'
@@ -49,12 +50,45 @@ const Page: NextPage<Props> = ({}) => {
       setCategory(event.target.value);
     };
 
+    const productData = {
+      name: name,
+      description: description,
+      price: price,
+      category: category,
+      img: image,
+    };
+
     const handleUpdateProduct = async (event: React.FormEvent) => {
       event.preventDefault();
-      console.log("Product Updated Successfully!");
+      if (!image)
+        return toast.error("Please upload a valid image file (jpg, png, jpeg).");
+      
+      setLoading(true);
+      try {
+        const { data } = await axios.put(
+          `http://localhost:8000/api/v1/product/updateProduct/${productId}`,
+          productData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
+        if (data.success) {
+          toast.success("Product Updated Successfully!");
+          router.push("/products");
+        } else {
+          toast.error("Something went wrong!");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false); 
+      }
     };
 
   return (
+    loading ? <Loader /> :
     <DefaultLayout>
         <div className="h-screen">
         <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">

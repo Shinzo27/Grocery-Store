@@ -20,3 +20,9 @@ export const ProductType = z.object({
     category: z.string()
 })
 
+export const updateProductType = z.object({
+    name: z.string(),
+    description: z.string(),
+    price: z.string(),
+    category: z.string(),
+})
