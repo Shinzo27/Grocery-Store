@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface Props {}
 
@@ -20,6 +21,16 @@ const Page: NextPage<Props> = ({}) => {
   useEffect(() => {
     getProducts();
   },[]);
+
+  const handleDeleteProduct = async (productId: string) => {
+    const { data } = await axios.delete(`http://localhost:8000/api/v1/product/deleteProduct/${productId}`, {withCredentials: true});
+    if (data.success) {
+      toast.success("Product Deleted Successfully!");
+      getProducts();
+    } else {
+      toast.error("Something went wrong!");
+    }
+  };
 
   return (
     <DefaultLayout>
@@ -112,7 +123,7 @@ const Page: NextPage<Props> = ({}) => {
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white text-wrap">
+                  <p className="text-black dark:text-white text-wrap" onClick={() => handleDeleteProduct(product._id)}>
                     Delete
                   </p>
                 </div>

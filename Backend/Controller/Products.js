@@ -170,3 +170,16 @@ export const updateProduct = async (req, res, next) => {
     console.log(error);
   }
 };
+
+export const deleteProduct = async (req, res, next) => {
+  const productId = req.params.id;
+  const product = await Product.findByIdAndDelete( productId );
+  if (product)
+    return res.status(200).json({
+      success: true,
+      message: "Product Deleted Successfully!",
+    });
+  else {
+    console.log("Something went wrong!");
+  }
+};
