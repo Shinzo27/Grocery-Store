@@ -106,9 +106,9 @@ const Page: NextPage<Props> = ({}) => {
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white text-wrap">
+                  <button className="text-black dark:text-white text-wrap" onClick={() => router.push(`/edit_product?productId=${product._id}`)}>
                     Edit
-                  </p>
+                  </button>
                 </div>
 
                 <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">

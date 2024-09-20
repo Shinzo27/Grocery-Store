@@ -13,3 +13,4 @@
     manage graphs
     manage orders 
     manage users
+    manage products

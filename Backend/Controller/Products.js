@@ -100,3 +100,15 @@ export const getAllProducts  = async(req,res,next) => {
     products
   });
 }
+
+export const getSingleProduct = async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  res.json({
+    product
+  });
+};
+
+export const updateProduct = async (req, res) => {
+  const productId = req.params.id;
+  console.log("Update Product");
+};
