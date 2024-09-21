@@ -88,3 +88,12 @@ export const getOrders = async(req,res,next) => {
     orders
   })
 }
+
+export const getSingleOrder = async(req,res,next) => {
+  const order = await Order.findOne({orderId: req.params.id}).populate('products user');
+  if(!order) return next(new ErrorHandler("Order not found", 400))
+
+  res.json({
+    order
+  })
+}
