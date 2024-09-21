@@ -4,13 +4,14 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { Admin } from "@/types/admin";
 import axios from "axios";
 import { NextPage } from "next";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {}
 
 const Page: NextPage<Props> = ({}) => {
   const [admins, setAdmins] = useState<Admin[]>([]);
-
+  const router = useRouter();
   const fetchAdmins = async () => {
     try {
       const { data } = await axios.get('http://localhost:8000/api/v1/user/admin/getAdmins', {withCredentials: true})
@@ -33,7 +34,7 @@ const Page: NextPage<Props> = ({}) => {
               Admins
             </h4>
             <div>
-              <button className="btn btn-primary btn-sm mb-5 rounded-lg bg-zinc-600 p-3 font-semibold text-white dark:bg-blue-800">
+              <button className="btn btn-primary btn-sm mb-5 rounded-lg bg-zinc-600 p-3 font-semibold text-white dark:bg-blue-800" onClick={() => router.push('/addAdmin')}>
                 Add Admin
               </button>
             </div>

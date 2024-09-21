@@ -24,7 +24,7 @@ const Page: NextPage<Props> = ({}) => {
 
   return (
     <DefaultLayout>
-      <div>
+      <div className='h-screen'>
         Hello
       </div>
     </DefaultLayout>
