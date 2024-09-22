@@ -7,10 +7,9 @@
  display single order
 
  admin panel:
-    add admin
+    add admin✅
     manage stock
     manage stats
     manage graphs
-    manage orders 
-    manage users
+    manage orders✅
     manage products✅
