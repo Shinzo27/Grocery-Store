@@ -127,3 +127,42 @@ export const getAdmin = async (req, res, next) => {
     admin
   })
 }
+
+export const adminSignup = async (req, res, next) => {
+  const BodyParser = req.body;
+
+  if (BodyParser.username === "" || BodyParser.email === "" || BodyParser.password === "") return next(new ErrorHandler("Fill all the details properly!", 400));
+  
+  const parsedPayload = SignUp.safeParse(BodyParser);
+
+  if (!parsedPayload.success)
+    return next(new ErrorHandler("Fill all the details properly", 400));
+
+  const isUsernameExists = await User.findOne({
+    username: parsedPayload.data.username,
+  });
+
+  if (isUsernameExists)
+    return next(new ErrorHandler("Username is already taken!", 400));
+
+  const isEmailExists = await User.findOne({ email: parsedPayload.data.email });
+
+  if (isEmailExists)
+    return next(new ErrorHandler("Email is already taken!", 400));
+
+  const user = await User.create({
+    username: parsedPayload.data.username,
+    email: parsedPayload.data.email,
+    password: parsedPayload.data.password,
+    role: "Admin",
+  });
+
+  if (user)
+    return res.status(200).json({
+      success: true,
+      message: "New Admin Registered!",
+    });
+  else {
+    return next(new ErrorHandler("Something went wrong!", 400));
+  }
+};

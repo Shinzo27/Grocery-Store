@@ -1,7 +1,11 @@
 "use client";
+import Loader from '@/components/common/Loader';
 import DefaultLayout from '@/components/Layouts/DefaultLayout'
+import axios from 'axios';
 import { NextPage } from 'next'
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface Props {}
 
@@ -9,13 +13,28 @@ const Page: NextPage<Props> = ({}) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleAddAdmin = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(username, email, password);
+    setLoading(true);
+    try {
+      const { data } = await axios.post('http://localhost:8000/api/v1/user/admin/signup', {username, email, password}, {withCredentials: true})
+      if (data.success) {
+        toast.success("Admin Added Successfully!");
+        router.push('/admins');
+      } else {
+        toast.error("Something went wrong!");
+      }
+    } catch (error: any) {
+      toast.error(error.data.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  return (
+  return (loading ? <Loader /> :
     <DefaultLayout>
       <div className="h-screen">
         <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
