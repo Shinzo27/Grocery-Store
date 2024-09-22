@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Order } from "@/types/orders";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface Props {}
 
@@ -13,10 +14,19 @@ const Page: NextPage<Props> = ({}) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const router = useRouter();
 
+  const handleStatusChange = async (status: string, orderId: string) => {
+    const { data } = await axios.put(`http://localhost:8000/api/v1/checkout/updateOrderStatus/${orderId}`, {status}, {withCredentials: true});
+    if (data.success) {
+      toast.success("Status Updated Successfully!");
+      fetchOrders();
+    } else {
+      toast.error("Something went wrong!");
+    }
+  }
+
   const fetchOrders = async() => {
     try {
       const { data } = await axios.get('http://localhost:8000/api/v1/checkout/allOrders', {withCredentials: true})
-      console.log(data.orders.status);
       setOrders(data.orders);
     } catch (error) {
       console.log(error);
@@ -79,18 +89,22 @@ const Page: NextPage<Props> = ({}) => {
                   </p>
                 </div>
 
-                <div className="hidden sm:flex items-center justify-center p-2.5 xl:p-5">
+                <div className="flex items-center justify-center p-2.5 xl:p-5">
                   <p className="text-black dark:text-white">
                     ₹{order.total}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-center p-2.5 xl:p-5">
-                  <p className="text-meta-3">{order.pincode}</p>
+                <div className="hidden sm:flex items-center justify-center p-2.5 xl:p-5">
+                  <p className="text-meta-3">{order.createdAt.trim().slice(0, 10)}</p>
                 </div>
 
                 <div className="flex items-center justify-center p-2.5 sm:flex xl:p-5">
-                  <p className="text-black dark:text-white">{order.status}</p>
+                  <select value={order.status} onChange={(e) => handleStatusChange(e.target.value, order._id)} className="bg-transparent border-transparent">
+                    <option disabled>Status</option>
+                    <option value={'Pending'}>Pending</option>
+                    <option value={'Delivered'}>Delivered</option>
+                  </select>
                 </div>
 
                 <div className="flex items-center justify-center p-2.5 sm:flex xl:p-5">

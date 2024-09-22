@@ -63,7 +63,7 @@ export const completePayment = async(req,res,next) => {
     products: cartItems.map(item=>({
       name: item.productId.name,
       quantity: item.quantity,
-      price: item.productId.price
+      price: item.productId.price * item.quantity
     })),
     orderId: razorpay_order_id
   })
@@ -96,4 +96,16 @@ export const getSingleOrder = async(req,res,next) => {
   res.json({
     order
   })
+}
+
+export const updateOrderStatus = async(req,res,next) => {
+  const orderId = req.params.id;
+  const status = req.body.status;
+  const order = await Order.findByIdAndUpdate(orderId, {status});
+  if(!order) return next(new ErrorHandler("Order not found", 400))
+
+  res.json({
+    success: true
+  })
+  console.log(status);
 }

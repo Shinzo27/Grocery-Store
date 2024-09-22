@@ -8,5 +8,8 @@ export type Order = {
     total: string;
     products: [],
     orderId: string;
-    status?: string | "Pending"
+    status?: string | "Pending";
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
 }
