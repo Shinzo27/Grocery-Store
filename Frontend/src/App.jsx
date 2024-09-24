@@ -11,6 +11,7 @@ import Footer from './Components/Footer'
 import PaymentSuccess from './Pages/PaymentSuccess'
 import UserDetails from './Pages/UserDetails'
 import { Toaster } from 'react-hot-toast'
+import ViewOrder from './Pages/ViewOrder'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path='/signup' element={<Signup/>}/>
           <Route path='/paymentSuccess' element={<PaymentSuccess/>}/>
           <Route path='/userdetails' element={<UserDetails/>}/>
+          <Route path='/viewOrder' element={<ViewOrder/>}/>
         </Routes>
       <Footer/>
       <Toaster position='top-center'/>

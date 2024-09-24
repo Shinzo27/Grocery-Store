@@ -25,7 +25,14 @@ export const userSignin = async (req, res, next) => {
   if (!isMatchedPassword)
     return next(new ErrorHandler("Password didn't matched!", 400));
 
-  generateToken(isExists, "Login Successfull", 201, res);
+  const token = isExists.generateWebToken();
+
+  return res.status(200).json({
+    success: true,
+    message: "Login Successfull",
+    user: isExists,
+    token
+  })
 };
 
 export const userSignUp = async (req, res, next) => {
@@ -38,7 +45,7 @@ export const userSignUp = async (req, res, next) => {
   )
     return next(new ErrorHandler("Fill all the details properly!", 400));
     const parsedPayload = SignUp.safeParse(BodyParser);
-    console.log(parsedPayload.error);
+    
   if (!parsedPayload.success)
     return next(new ErrorHandler("Fill all the details properly", 400));
 
@@ -94,7 +101,6 @@ export const logout = async (req, res) => {
 };
 
 export const adminSignin = async (req, res, next) => {
-  console.log("Route called!");
   const BodyParser = req.body;
   const parsedPayload = adminLogin.safeParse(BodyParser);
 

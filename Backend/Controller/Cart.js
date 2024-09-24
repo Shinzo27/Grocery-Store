@@ -15,7 +15,7 @@ export const displayItems = async (req, res, next) => {
 };
 
 export const addToCart = async (req,res, next) => { 
-  const productId = req.params.id;
+    const productId = req.params.id;
     const userId = req.user._id;
     const { quantity } = req.body;
     if(!userId) return next(new ErrorHandler("User is not authenticated!", 400))

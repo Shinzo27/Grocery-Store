@@ -6,27 +6,13 @@ import axios from "axios";
 import { toast } from 'react-hot-toast'
 import { useRecoilState } from "recoil";
 import { authState } from '../State/Atom'
+import Cookies from 'js-cookie' 
 
 const Login = () => {
   const [ username, setUsername ] = useState("")
   const [ password, setPassword ] = useState("")
   const [ auth, setAuth ] = useRecoilState(authState)
   const navigateTo = useNavigate()
-
-  // const fetchUser = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "http://localhost:8000/api/v1/user/customer/me",
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     setIsAuthenticated(true);
-  //     setUser(response.data.user);
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -46,6 +32,7 @@ const Login = () => {
           isAuthenticated: true,
           user,
         })
+        Cookies.set('CustomerToken', token)
         toast.success(response.data.message);
         navigateTo('/')
       }
