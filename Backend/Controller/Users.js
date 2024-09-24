@@ -94,6 +94,7 @@ export const logout = async (req, res) => {
 };
 
 export const adminSignin = async (req, res, next) => {
+  console.log("Route called!");
   const BodyParser = req.body;
   const parsedPayload = SignIn.safeParse(BodyParser);
 
