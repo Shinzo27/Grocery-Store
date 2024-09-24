@@ -25,3 +25,8 @@ export const updateProductType = z.object({
     price: z.string(),
     category: z.string(),
 })
+
+export const adminLogin = z.object({
+    email: z.string(),
+    password: z.string()
+})

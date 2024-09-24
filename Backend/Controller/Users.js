@@ -1,4 +1,4 @@
-import { SignIn, SignUp } from "../config/type.js";
+import { adminLogin, SignIn, SignUp } from "../config/type.js";
 import User from "../Models/Users.js";
 import { generateAdminToken, generateToken } from "../Utils/Auth.js";
 import { ErrorHandler } from "../Middleware/ErrorHandler.js";
@@ -96,27 +96,40 @@ export const logout = async (req, res) => {
 export const adminSignin = async (req, res, next) => {
   console.log("Route called!");
   const BodyParser = req.body;
-  const parsedPayload = SignIn.safeParse(BodyParser);
+  const parsedPayload = adminLogin.safeParse(BodyParser);
 
   if (!parsedPayload.success) {
-    return next(new ErrorHandler("Fill details properly!", 400));
+    return res.json({
+      success: false,
+      message: "Fill details properly!",
+    });
   }
 
   const isExists = await User.findOne({
-    username: parsedPayload.data.username,
+    email: parsedPayload.data.email,
     role: "Admin",
   });
 
-  if (!isExists) return next(new ErrorHandler("User doesn't exists!", 400));
+  if (!isExists) return res.json({
+    success: false,
+    message: "User doesn't exists!",
+  });
 
   const isMatchedPassword = await isExists.comparePassword(
     parsedPayload.data.password
   );
 
   if (!isMatchedPassword)
-    return next(new ErrorHandler("Password didn't matched!", 400));
+    return res.json({
+      success: false,
+      message: "Password didn't matched!",
+    });
 
-  generateAdminToken(isExists, "Login Successfull", 201, res);
+  return res.status(200).json({
+    success: true,
+    message: "Admin Logged In Successfully.",
+    user: isExists
+  })
 };
 
 export const getAdmin = async (req, res, next) => {

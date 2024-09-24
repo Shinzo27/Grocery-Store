@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 // export const metadata: Metadata = {
 //   title: "Signin",
@@ -18,6 +19,21 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    if(res?.ok) {
+      toast.success("Logged In Successfully!");
+      router.push("/");
+    } else {
+      toast.error("Invalid Credentials!");
+    }
+  };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
@@ -26,7 +42,7 @@ const SignIn: React.FC = () => {
             <h1 className="text-gray-900 text-xl font-bold leading-tight tracking-tight dark:text-white md:text-2xl">
               Sign in to your account
             </h1>
-            <form className="space-y-4 md:space-y-6">
+            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label
                   htmlFor="email"
@@ -62,17 +78,8 @@ const SignIn: React.FC = () => {
                 />
               </div>
               <button
-                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg bg-graydark px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
-                onClick={async () => {
-                  const res = await signIn("credentials", {
-                    username: "admin",
-                    password: "admin123",
-                    redirect: false,
-                  });
-                  console.log(res);
-                  router.push("/");
-                }}
-              >
+                type="submit"
+                className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg bg-graydark px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4">
                 Sign in
               </button>
 {/* Change the code of backend call and add the code according to it! */}
