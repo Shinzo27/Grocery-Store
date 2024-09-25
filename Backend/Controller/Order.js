@@ -275,3 +275,36 @@ export const getProductCategory = async (req, res, next) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const getLastFiveOrders = async (req, res, next) => {
+  try {
+    const last5Orders = await Order.find({}).sort({ createdAt: -1 }).limit(5).populate('user');
+
+    return res.json({
+      orders: last5Orders.map((order) => ({
+        orderId: order.orderId,
+        date: order.createdAt,
+        status: order.status,
+        total: order.total,
+      }))
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getLessQuantityProducts = async (req, res, next) => {
+  try {
+    const lowStockProducts = await Product.find()
+            .exec()
+            .then(products => products.filter(product => parseInt(product.quantity) < 5));
+    return res.json({
+      products: lowStockProducts.map((product) => ({
+        name: product.name,
+        quantity: product.quantity,
+      }))
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
