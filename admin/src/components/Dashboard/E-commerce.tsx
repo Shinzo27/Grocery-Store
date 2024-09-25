@@ -1,11 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ChartOne from "../Charts/ChartOne";
 import ChartTwo from "../Charts/ChartTwo";
 import ChatCard from "../Chat/ChatCard";
 import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
+import axios from "axios";
 
 const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
   ssr: false,
@@ -16,10 +17,30 @@ const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
 });
 
 const ECommerce: React.FC = () => {
+  const [total, setTotal] = useState(0);
+  const [pendingOrders, setPendingOrders] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:8000/api/v1/checkout/getStats", {withCredentials: true})
+        setTotal(data.total);
+        setPendingOrders(data.pendingOrders);
+        setTotalProducts(data.totalProducts);
+        setActiveUsers(data.activeUsers);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  },[]);
+
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title="Total Orders" total="$3.456K">
+        <CardDataStats title="Total Orders" total={total.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -38,7 +59,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Pending orders" total="15">
+        <CardDataStats title="Pending orders" total={pendingOrders.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="20"
@@ -61,7 +82,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Product" total="2.450">
+        <CardDataStats title="Total Product" total={totalProducts.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -80,7 +101,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Active users" total="3.456">
+        <CardDataStats title="Active users" total={activeUsers.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
