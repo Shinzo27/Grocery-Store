@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkout, completePayment, getOrders, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
+import { checkout, completePayment, getOrders, getProductCategory, getSalesData, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
 
 const router = express.Router()
 
@@ -10,5 +10,7 @@ router.get('/allOrders', getOrders)
 router.get('/singleOrder/:id', getSingleOrder)
 router.put('/updateOrderStatus/:id', updateOrderStatus)
 router.get('/getStats', getStats)
+router.get('/getSalesData', getSalesData)
+router.get('/getProductCategory', getProductCategory)
 
 export default router

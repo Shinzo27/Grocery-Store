@@ -6,6 +6,7 @@ import Cart from "../Models/Cart.js";
 import Order from "../Models/Order.js";
 import Product from "../Models/Products.js";
 import User from "../Models/Users.js";
+import moment from "moment";
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -120,7 +121,7 @@ export const updateOrderStatus = async (req, res, next) => {
 const totalProducts = async (req, res, next) => {
   try {
     const result = await Product.find({}).countDocuments();
-    return result
+    return result;
   } catch (error) {
     return res.status(400).json({
       success: false,
@@ -131,7 +132,7 @@ const totalProducts = async (req, res, next) => {
 const getActiveUsers = async (req, res, next) => {
   try {
     const result = await User.find({}).countDocuments();
-    return result
+    return result;
   } catch (error) {
     return res.status(400).json({
       success: false,
@@ -148,8 +149,8 @@ export const getStats = async (req, res, next) => {
     total: total,
     pendingOrders: pendingOrders,
     totalProducts: getTotalProducts,
-    activeUsers: activeUsers
-  })
+    activeUsers: activeUsers,
+  });
 };
 
 const totalRaisedAmount = async (req, res, next) => {
@@ -186,3 +187,91 @@ const getPendingOrders = async (req, res, next) => {
   }
 };
 
+export const getSalesData = async (req, res) => {
+  try {
+    const last5Days = Array.from({ length: 5 }, (_, i) =>
+      moment().subtract(i, "days").startOf("day")
+    ).reverse();
+
+    const salesData = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: last5Days[0].toDate(),
+            $lte: new Date(), 
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          totalSales: {
+            $sum: { $toDouble: "$total" },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const salesByDay = last5Days.map((date) => {
+      const formattedDate = date.format("YYYY-MM-DD");
+      const salesOnDay = salesData.find((data) => data._id === formattedDate);
+      return {
+        date: formattedDate,
+        sales: salesOnDay ? salesOnDay.totalSales : 0,
+      };
+    });
+
+    return res.status(200).json(salesByDay);
+  } catch (error) {
+    console.error("Error fetching sales data:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getProductCategory = async (req, res, next) => {
+  try {
+    const categoryCounts = await Product.aggregate([
+      {
+        $group: {
+          _id: '$category', // Group by category reference (which is an ObjectId)
+          count: { $sum: 1 } // Count products per category
+        }
+      },
+      {
+        $lookup: {
+          from: 'categories', // The Category collection name
+          localField: '_id', // The ObjectId reference to the category
+          foreignField: '_id', // The ObjectId field in the Category collection
+          as: 'categoryInfo' // The new field to hold the joined data
+        }
+      },
+      {
+        $unwind: '$categoryInfo' // Unwind the array result of $lookup to get the actual category document
+      },
+      {
+        $project: {
+          categoryName: '$categoryInfo.name', // Only include the category name
+          count: 1 // Include the product count
+        }
+      }
+    ])
+
+    const totalProducts = categoryCounts.reduce(
+      (sum, category) => sum + category.count,
+      0
+    );
+
+    const categoryPercentages = categoryCounts.map((category) => ({
+      category: category.categoryName,
+      percentage: ((category.count / totalProducts) * 100).toFixed(2) // Format to 2 decimal places
+    }));
+
+    res.status(200).json(categoryPercentages);
+  } catch (error) {
+    console.error("Error fetching category percentages:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
