@@ -30,9 +30,11 @@ const DropdownNotification = () => {
 
   const markAsRead = async () => {
     try {
-      const { data } = await axios.post("http://localhost:8000/api/v1/checkout/markAsRead", {withCredentials: true})
-      if(data){
+      const { data } = await axios.delete("http://localhost:8000/api/v1/checkout/clearNotification", {withCredentials: true})
+      if(data.message === 'Notifications cleared successfully'){
         setNotifications([]);
+        setDropdownOpen(false);
+        setNotifying(false);
       }
     } catch (error) {
       console.log(error);

@@ -336,22 +336,8 @@ export const getNotification = async(req,res,next)=>{
   }
 }
 
-export const clearNotification = async(req,res,next)=>{
-  const result = await redisClient.keys('newOrder', (err, keys) => {
-    if (err) {
-      return res.status(500).json({ error: 'Error fetching notifications' });
-    }
-
-    if (keys.length === 0) {
-      return res.status(200).json({ message: 'No notifications to clear' });
-    }
-
-    redisClient.del(keys, (delErr, delResult) => {
-      if (delErr) {
-        return res.status(500).json({ error: 'Error clearing notifications' });
-      }
-    });
-  });
+export const clearNotification = async (req, res, next) => {
+  const result = await redisClient.del('newOrder');
   return res.status(200).json({
     message: 'Notifications cleared successfully',
   });
