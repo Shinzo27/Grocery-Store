@@ -3,22 +3,41 @@ import Link from "next/link";
 import ClickOutside from "@/components/ClickOutside";
 import axios from "axios";
 
+interface Notification {
+  orderId: string;
+  message: string;
+  time: string;
+}
+
 const DropdownNotification = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifying, setNotifying] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const getNotifications = async () => {
     try {
       const { data } = await axios.get("http://localhost:8000/api/v1/checkout/getNotification", {withCredentials: true})
-      if(data){
+      if(data.notifications && data.notifications.length > 0){
         setNotifying(true);
         setNotifications(data.notifications);
+      } else {
+        setNotifying(false);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const markAsRead = async () => {
+    try {
+      const { data } = await axios.post("http://localhost:8000/api/v1/checkout/markAsRead", {withCredentials: true})
+      if(data){
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
     getNotifications();
@@ -73,15 +92,30 @@ const DropdownNotification = () => {
             </div>
 
             <ul className="flex h-auto flex-col overflow-y-auto">
-              <li>
-                <p
-                  className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4 text-sm">
-                    <span className="text-black dark:text-white">
-                      New Order Received on 26-09-2024
-                    </span>{" "}
-                </p>
-              </li>
+              {
+                notifications.map((notification,index)=>{
+                  return(
+                    <li key={index}>
+                      <p
+                        className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4 text-sm">
+                        <span className="text-black dark:text-white">
+                          {notification.message} on {notification.time}
+                        </span>{" "}
+                      </p>
+                    </li>
+                  )
+                })
+              }
             </ul>
+            {
+              notifying === true ? (
+              <div className=" pt-10 flex h-10 w-full items-center justify-center border-t border-stroke px-4 py-3 text-sm font-medium text-black dark:border-strokedark dark:text-white inset-x-0 bottom-0">
+                <button className="flex h-10 w-full items-center justify-center rounded-full border border-stroke bg-gray px-4 py-2 text-sm font-medium text-black hover:bg-gray-2 dark:border-strokedark dark:bg-meta-4 dark:text-white" onClick={() => markAsRead()}>
+                  Mark as Read
+                </button>
+              </div>
+              ) : null
+            }
           </div>
         )}
       </li>

@@ -15,6 +15,6 @@ router.get('/getProductCategory', getProductCategory)
 router.get('/getLastFiveOrders', getLastFiveOrders)
 router.get('/getLessQuantityProducts', getLessQuantityProducts)
 router.get('/getNotification', getNotification)
-router.get('/clearNotification', clearNotification)
+router.delete('/clearNotification', clearNotification)
 
 export default router

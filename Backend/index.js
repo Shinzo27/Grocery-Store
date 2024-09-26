@@ -1,23 +1,31 @@
+import { resolve } from 'path'
+import { config } from 'dotenv'
+config({ path: resolve('./config/.env.development') })
+
 import express from 'express'
 import mongoose from 'mongoose'
-import { config } from 'dotenv'
+import { createClient} from 'redis'
+
 import userRouter from './Routes/Users.js'
 import productRouter from './Routes/Products.js'
 import cartRouter from './Routes/Cart.js'
 import checkoutRouter from './Routes/Order.js'
+import categoryRouter from './Routes/Category.js'
+
 import cookieParser from 'cookie-parser'
 import cloudinary from 'cloudinary'
 import fileUpload from 'express-fileupload'
-import ErrorHandler, { errorMiddleware } from './Middleware/ErrorHandler.js'
+
+import { errorMiddleware } from './Middleware/ErrorHandler.js'
 import { checkForAuthentication } from './Utils/Auth.js'
-import categoryRouter from './Routes/Category.js'
+
 import cors from 'cors'
 import Razorpay from 'razorpay'
 import { Server } from 'socket.io'
 import http from 'http'
+
 import Product from './Models/Products.js'
 import Cart from './Models/Cart.js'
-import redisClient from './Services/RedisClient.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -30,9 +38,22 @@ const io = new Server(server, {
 })
 
 const PORT = process.env.PORT || 8000
-config({path: './config/.env'})
 
 mongoose.connect(process.env.MONGO_URI, console.log("MongoDB Connected"))
+
+export const redisClient = createClient({
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+    }
+});
+
+redisClient.on('connect', () => {
+    console.log('Redis Client Connected!');
+});
+
+redisClient.connect()
 
 export const instance = new Razorpay({
     key_id: process.env.RAZORPAY_API_KEY,

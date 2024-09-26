@@ -7,7 +7,7 @@ import Order from "../Models/Order.js";
 import Product from "../Models/Products.js";
 import User from "../Models/Users.js";
 import moment from "moment";
-import redisClient from "../Services/RedisClient.js";
+import { redisClient } from "../index.js";
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -320,31 +320,39 @@ export const getLessQuantityProducts = async (req, res, next) => {
 
 export const getNotification = async(req,res,next)=>{
   try{
-    await redisClient.lRange("newOrder",0,-1,(err,result)=>{
-      if(err){
-        return next(new ErrorHandler("Something went wrong!", 400))
-      }
-      const parsedResult = result.map(item => JSON.parse(item));
-      res.json({
+    const result = await redisClient.lRange("newOrder",0,-1)
+    const parsedResult = result.map(item => JSON.parse(item));
+    if(parsedResult.length === 0){
+      return res.status(200).json({
+        notifications: []
+      })
+    } else {
+      return res.json({
         notifications: parsedResult
       })
-    })
+    }
   }catch(error){
     console.log(error)
   }
 }
 
 export const clearNotification = async(req,res,next)=>{
-  try{
-    redisClient.del("newOrder",(err,result)=>{
-      if(err){
-        return next(new ErrorHandler("Something went wrong!", 400))
+  const result = await redisClient.keys('newOrder', (err, keys) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error fetching notifications' });
+    }
+
+    if (keys.length === 0) {
+      return res.status(200).json({ message: 'No notifications to clear' });
+    }
+
+    redisClient.del(keys, (delErr, delResult) => {
+      if (delErr) {
+        return res.status(500).json({ error: 'Error clearing notifications' });
       }
-      res.json({
-        success: true
-      })
-    })
-  }catch(error){
-    console.log(error)
-  }
+    });
+  });
+  return res.status(200).json({
+    message: 'Notifications cleared successfully',
+  });
 }

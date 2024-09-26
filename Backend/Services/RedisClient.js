@@ -1,12 +1,14 @@
-import { createClient } from 'redis';
+import { createClient } from 'redis'
 
 const redisClient = createClient({
     password: process.env.REDIS_PASSWORD,
     socket: {
         host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
+        port: process.env.REDIS_PORT
     }
 });
+
+console.log(REDIS_PASSWORD)
 
 redisClient.on('error', (err) => {
     console.log('Redis Client Error:', err);
@@ -27,5 +29,7 @@ redisClient.on('reconnecting', () => {
 redisClient.on('end', () => {
     console.log('Redis Client Disconnected!');
 });
+
+// redisClient.connect()
 
 export default redisClient
