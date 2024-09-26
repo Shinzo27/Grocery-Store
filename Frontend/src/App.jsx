@@ -12,6 +12,8 @@ import PaymentSuccess from './Pages/PaymentSuccess'
 import UserDetails from './Pages/UserDetails'
 import { Toaster } from 'react-hot-toast'
 import ViewOrder from './Pages/ViewOrder'
+import Profile from './Pages/Profile'
+import OrderDetail from './Pages/OrderDetail'
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           <Route path='/paymentSuccess' element={<PaymentSuccess/>}/>
           <Route path='/userdetails' element={<UserDetails/>}/>
           <Route path='/viewOrder' element={<ViewOrder/>}/>
+          <Route path='/profile' element={<Profile/>}/>
+          <Route path='/orderDetail/:id' element={<OrderDetail/>}/>
         </Routes>
       <Footer/>
       <Toaster position='top-center'/>
