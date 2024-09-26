@@ -17,6 +17,7 @@ import { Server } from 'socket.io'
 import http from 'http'
 import Product from './Models/Products.js'
 import Cart from './Models/Cart.js'
+import redisClient from './Services/RedisClient.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -85,7 +86,6 @@ io.on('connection', (socket, next) => {
         const newQuantity = parseInt(cartProduct.quantity) + 1;
 
         const update = await Cart.findOneAndUpdate({_id}, {totalPrice: newPrice, quantity: newQuantity}, {new: true})
-        console.log(update)
         socket.emit('singleProductUpdated', {
             update: [update]
         }) 

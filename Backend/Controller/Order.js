@@ -7,6 +7,7 @@ import Order from "../Models/Order.js";
 import Product from "../Models/Products.js";
 import User from "../Models/Users.js";
 import moment from "moment";
+import redisClient from "../Services/RedisClient.js";
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -75,7 +76,16 @@ export const completePayment = async (req, res, next) => {
     })),
     orderId: razorpay_order_id,
   });
+
   const deleteItem = await Cart.deleteMany({ userId });
+
+  const notification = {
+    orderId: newOrder._id,
+    message: "New Order Received",
+    time: newOrder.createdAt.toString().trim().slice(0, 10)
+  }
+
+  redisClient.rPush("newOrder", JSON.stringify(notification))
 
   if (deleteItem) {
     return res.status(200).json({
@@ -115,7 +125,6 @@ export const updateOrderStatus = async (req, res, next) => {
   res.json({
     success: true,
   });
-  console.log(status);
 };
 
 const totalProducts = async (req, res, next) => {
@@ -306,5 +315,36 @@ export const getLessQuantityProducts = async (req, res, next) => {
     })
   } catch (error) {
     console.log(error);
+  }
+}
+
+export const getNotification = async(req,res,next)=>{
+  try{
+    await redisClient.lRange("newOrder",0,-1,(err,result)=>{
+      if(err){
+        return next(new ErrorHandler("Something went wrong!", 400))
+      }
+      const parsedResult = result.map(item => JSON.parse(item));
+      res.json({
+        notifications: parsedResult
+      })
+    })
+  }catch(error){
+    console.log(error)
+  }
+}
+
+export const clearNotification = async(req,res,next)=>{
+  try{
+    redisClient.del("newOrder",(err,result)=>{
+      if(err){
+        return next(new ErrorHandler("Something went wrong!", 400))
+      }
+      res.json({
+        success: true
+      })
+    })
+  }catch(error){
+    console.log(error)
   }
 }

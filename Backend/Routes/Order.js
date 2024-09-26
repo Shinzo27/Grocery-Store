@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkout, completePayment, getLastFiveOrders, getLessQuantityProducts, getOrders, getProductCategory, getSalesData, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
+import { checkout, clearNotification, completePayment, getLastFiveOrders, getLessQuantityProducts, getNotification, getOrders, getProductCategory, getSalesData, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
 
 const router = express.Router()
 
@@ -14,5 +14,7 @@ router.get('/getSalesData', getSalesData)
 router.get('/getProductCategory', getProductCategory)
 router.get('/getLastFiveOrders', getLastFiveOrders)
 router.get('/getLessQuantityProducts', getLessQuantityProducts)
+router.get('/getNotification', getNotification)
+router.get('/clearNotification', clearNotification)
 
 export default router

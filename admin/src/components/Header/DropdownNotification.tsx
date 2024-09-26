@@ -1,10 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ClickOutside from "@/components/ClickOutside";
+import axios from "axios";
 
 const DropdownNotification = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
+  const [notifying, setNotifying] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  const getNotifications = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:8000/api/v1/checkout/getNotification", {withCredentials: true})
+      if(data){
+        setNotifying(true);
+        setNotifications(data.notifications);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotifications();
+    const interval = setInterval(() => {
+      getNotifications();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
