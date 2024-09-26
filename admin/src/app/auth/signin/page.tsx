@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import { signIn } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -16,9 +16,16 @@ import toast from "react-hot-toast";
 // };
 
 const SignIn: React.FC = () => {
+  const { status } = useSession();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if(status === "authenticated") {
+      router.push("/");
+    }
+  }, [status]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();

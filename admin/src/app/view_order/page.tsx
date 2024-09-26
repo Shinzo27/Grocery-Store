@@ -35,7 +35,6 @@ const Page: NextPage<Props> = ({}) => {
       `http://localhost:8000/api/v1/checkout/singleOrder/${orderId}`,
       { withCredentials: true },
     );
-    console.log(data.order);
     setUsername(data.order.user.username);
     setEmail(data.order.user.email);
     setAddress(data.order.address);

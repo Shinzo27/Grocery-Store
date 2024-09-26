@@ -8,10 +8,6 @@ import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
 import axios from "axios";
 
-const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
-  ssr: false,
-});
-
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
   ssr: false,
 });
@@ -134,7 +130,7 @@ const ECommerce: React.FC = () => {
         <div className="col-span-12 xl:col-span-8">
           <TableOne />
         </div>
-        <ChatCard />
+          <ChatCard />
       </div>
     </div>
   );
