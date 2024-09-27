@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import { authState } from "../State/Atom";
+import Cookies from 'js-cookie'
 
 const Header = () => {
   const [toggleButton, setToggleButton] = useState(false);
@@ -53,6 +54,7 @@ const Header = () => {
             isAuthenticated: false,
             user: null,
           })
+          Cookies.remove('CustomerToken')
           toast.success(data.message);
         } else {
           console.log("Something went wrong");

@@ -8,12 +8,15 @@ import CartItem from "../Components/CartItem";
 import { toast } from "react-hot-toast";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import io from 'socket.io-client'
+import { useRecoilValue } from "recoil";
+import { authState } from "../State/Atom";
 
 const socket = io('http://localhost:8000')
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState();
+  const user = useRecoilValue(authState).user
 
   const getCartItems = async () => {
     const { data } = await axios.get(
@@ -68,8 +71,7 @@ const Cart = () => {
     // <Navigate to={'/userdetails'} state={total}/>
   }
 
-  
-
+  if(!user || user.role !== 'Customer') return <Navigate to={'/'}/>
   return (
     <>
       <h2 className="title font-manrope font-bold text-4xl leading-10 mb-8 text-center text-black pt-6">

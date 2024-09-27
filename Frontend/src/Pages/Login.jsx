@@ -32,7 +32,7 @@ const Login = () => {
           isAuthenticated: true,
           user,
         })
-        Cookies.set('CustomerToken', token)
+        Cookies.set('CustomerToken', token, { expires: 1 })
         toast.success(response.data.message);
         navigateTo('/')
       }

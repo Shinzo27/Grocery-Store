@@ -15,7 +15,7 @@ export const userSignin = async (req, res, next) => {
     username: parsedPayload.data.username,
     role: "Customer",
   });
-
+    
   if (!isExists) return next(new ErrorHandler("User doesn't exists!", 400));
 
   const isMatchedPassword = await isExists.comparePassword(
@@ -27,10 +27,13 @@ export const userSignin = async (req, res, next) => {
 
   const token = isExists.generateWebToken();
 
+  const user = isExists.toJSON();
+  delete user.password;
+
   return res.status(200).json({
     success: true,
     message: "Login Successfull",
-    user: isExists,
+    user: user,
     token
   })
 };
