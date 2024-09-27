@@ -342,3 +342,14 @@ export const clearNotification = async (req, res, next) => {
     message: 'Notifications cleared successfully',
   });
 }
+
+export const getOrdersByUser = async (req, res, next) => {
+  const order = await Order.find({ user: req.user.id }).populate(
+    "products user"
+  );
+  if (!order) return next(new ErrorHandler("Order not found", 400));
+
+  res.json({
+    orders: order,
+  });
+};

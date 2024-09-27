@@ -31,7 +31,10 @@ userSchema.pre("save", async function(next){
 })
 
 userSchema.methods.generateWebToken = function (){
-    return jwt.sign({id: this._id, username: this.username}, process.env.JWT_SECRET_KEY, { expiresIn: process.env.JWT_EXPIRES })
+    return jwt.sign({
+        id: this._id, 
+        username: this.username
+    }, process.env.JWT_SECRET_KEY, { expiresIn: process.env.JWT_EXPIRES })
 }
 
 userSchema.methods.comparePassword = async function(enteredPassword){

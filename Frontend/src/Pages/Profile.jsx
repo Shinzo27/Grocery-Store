@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { authState } from "../State/Atom";
+import { useRecoilValue } from "recoil";
 
 const Profile = () => {
+  const [orders, setOrders] = useState([]);
+  const auth = useRecoilValue(authState).user;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get("http://localhost:8000/api/v1/checkout/getOrdersByUser", {
+        withCredentials: true,
+      });
+      setOrders(data.orders);
+    };
+    fetchData();
+    console.log(auth);
+  }, []);
+
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100">
@@ -11,10 +28,9 @@ const Profile = () => {
           <div className="bg-gray-50 p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4">Personal Information</h2>
             <div className="flex items-center mb-4">
-              <div className="h-20 w-20 rounded-full bg-gray-200"></div>
               <div className="ml-4">
-                <h3 className="text-lg font-semibold">Alice Johnson</h3>
-                <p className="text-gray-500">alice@example.com</p>
+                <h3 className="text-lg font-semibold">{auth.username}</h3>
+                <p className="text-gray-500">{auth.email}</p>
               </div>
             </div>
             <div className="mb-2 flex items-center">
@@ -23,7 +39,7 @@ const Profile = () => {
             </div>
             <div className="flex items-center">
               <span className="text-gray-500 mr-2">📅</span>
-              <p>Member since January 2023</p>
+              <p>Member since {auth.createdAt.toString().slice(0, 10)}</p>
             </div>
           </div>
 
@@ -36,48 +52,15 @@ const Profile = () => {
                 All Orders
               </p>
             </div>
-            <OrderItem
-              orderNumber="1"
-              date="2023-06-15"
-              status="Delivered"
-              amount="75.99"
-            />
-            <OrderItem
-              orderNumber="2"
-              date="2023-06-22"
-              status="Processing"
-              amount="45.50"
-            />
-            <OrderItem
-              orderNumber="3"
-              date="2023-06-30"
-              status="Shipped"
-              amount="120.75"
-            />
-            <OrderItem
-              orderNumber="3"
-              date="2023-06-30"
-              status="Shipped"
-              amount="120.75"
-            />
-            <OrderItem
-              orderNumber="3"
-              date="2023-06-30"
-              status="Shipped"
-              amount="120.75"
-            />
-            <OrderItem
-              orderNumber="5"
-              date="2023-06-30"
-              status="Shipped"
-              amount="120.75"
-            />
-            <OrderItem
-              orderNumber="3"
-              date="2023-06-30"
-              status="Shipped"
-              amount="120.75"
-            />
+            {orders.map((order) => (
+              <OrderItem
+                key={order._id}
+                orderNumber={order.orderId}
+                date={order.createdAt}
+                status={order.status}
+                amount={order.total}
+              />
+            ))}
           </div>
 
           <div className="flex justify-center items-center bg-gray-100">
@@ -177,8 +160,8 @@ const OrderItem = ({ orderNumber, date, status, amount }) => {
   return (
     <div className="flex justify-between items-center border-t border-gray-200 py-4">
       <div>
-        <h4 className="font-semibold">Order #{orderNumber}</h4>
-        <p className="text-gray-500">{date}</p>
+        <h4 className="font-semibold">#{orderNumber.toString().slice(7, 10)}</h4>
+        <p className="text-gray-500">{date.toString().slice(0, 10)}</p>
       </div>
       <div className="flex items-center">
         <span
@@ -186,7 +169,7 @@ const OrderItem = ({ orderNumber, date, status, amount }) => {
         >
           {status}
         </span>
-        <p className="ml-4 font-semibold">${amount}</p>
+        <p className="ml-4 font-semibold">₹{amount}</p>
         <button className="ml-4 text-sm text-blue-500 font-semibold" onClick={() => navigate(`/orderDetail/${orderNumber}`)}>
           View Details
         </button>

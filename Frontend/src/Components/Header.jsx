@@ -56,6 +56,7 @@ const Header = () => {
           })
           Cookies.remove('CustomerToken')
           toast.success(data.message);
+          navigateTo('/')
         } else {
           console.log("Something went wrong");
         }
