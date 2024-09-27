@@ -84,7 +84,7 @@ const UserDetails = () => {
           if(res.data.success){
              console.log(res.data)
              toast.success("Your order is placed!")
-             navigateTo('/paymentSuccess')
+             navigateTo('/paymentSuccess', { state: res.data.order})
           }
         } else {
           console.log("Payment Verification Failed");

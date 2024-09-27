@@ -1,15 +1,26 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 const OrderDetail = () => {
-  const status = 'Delivered'
+  
   const params = useParams()
-  console.log(params)
-  const orderItems = [
-    { name: 'Organic Apples', quantity: 2, price: 3.99, subtotal: 7.98 },
-    { name: 'Whole Grain Bread', quantity: 1, price: 4.50, subtotal: 4.50 },
-    { name: 'Free-Range Eggs', quantity: 1, price: 5.99, subtotal: 5.99 },
-  ];
+  const [status, setStatus] = useState("");
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [orderItems, setOrderItems] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get(`http://localhost:8000/api/v1/checkout/singleOrder/${params.id}`, {
+        withCredentials: true,
+      });
+      console.log(data.order);
+      setOrderItems(data.order.products);
+      setOrderDetails(data.order);
+      setStatus(data.order.status);
+    };
+    fetchData();
+  }, []);
 
   const statusClass =
     status === "Delivered"
@@ -18,9 +29,6 @@ const OrderDetail = () => {
       ? "bg-yellow-500"
       : "bg-blue-500";
 
-  const calculateTotal = () => {
-    return orderItems.reduce((acc, item) => acc + item.subtotal, 0).toFixed(2);
-  };
   return (
     <>
       <div className="min-h-screen flex justify-center items-center">
@@ -36,7 +44,7 @@ const OrderDetail = () => {
             </div>
           </div>
           <p className="text-sm text-gray-500">Order ID {params.id}</p>
-          <p className="text-sm text-gray-500">Placed on 2023-06-15</p>
+          <p className="text-sm text-gray-500">Placed on {orderDetails.createdAt}</p>
           {/* Order Table */}
           <div className="mt-4">
             <table className="w-full">
@@ -45,25 +53,23 @@ const OrderDetail = () => {
                   <th className='pb-4'>Item</th>
                   <th className="text-center pb-4">Quantity</th>
                   <th className="text-right pb-4">Price</th>
-                  <th className="text-right pb-4">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {orderItems.map((item, index) => (
                   <tr key={index} className="border-t">
-                    <td className='pt-5'>{item.name}</td>
+                    <td className='pt-5 capitalize'>{item.name}</td>
                     <td className="text-center pt-5">{item.quantity}</td>
-                    <td className="text-right pt-5">${item.price.toFixed(2)}</td>
-                    <td className="text-right pt-5">${item.subtotal.toFixed(2)}</td>
+                    <td className="text-right pt-5">₹{item.price}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className="mt-6">
-              <span className="font-semibold">Delivered to: {"Nani fali, Pal gam, Surat"}</span>
+              <span className="font-semibold">Delivered to: {orderDetails.address + " " + orderDetails.city + " " + orderDetails.state + ", " + orderDetails.pincode}</span>
             </div>
             <div className="mt-6 flex justify-end">
-              <span className="font-semibold">Total: ₹{calculateTotal()}</span>
+              <span className="font-semibold">Total: ₹{orderDetails.total}</span>
             </div>
           </div>
 

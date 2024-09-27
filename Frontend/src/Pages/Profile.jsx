@@ -16,7 +16,6 @@ const Profile = () => {
       setOrders(data.orders);
     };
     fetchData();
-    console.log(auth);
   }, []);
 
   const navigate = useNavigate();

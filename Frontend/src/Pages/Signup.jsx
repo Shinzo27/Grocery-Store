@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
-import Navbar from '../Components/Header'
-import Footer from '../Components/Footer'
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 const Signup = () => {
     const [username, setUsername]= useState("")
