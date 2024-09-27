@@ -1,7 +1,4 @@
-import { resolve } from 'path'
-import { config } from 'dotenv'
-config({ path: resolve('./config/.env.development') })
-
+import './Services/Config.js'   
 import express from 'express'
 import mongoose from 'mongoose'
 import { createClient} from 'redis'

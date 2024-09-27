@@ -82,6 +82,7 @@ const UserDetails = () => {
         if (verifyData.success) {
           const res = await axios.post("http://localhost:8000/api/v1/checkout/complete", { userDetails, razorpay_order_id: paymentData.razorpay_order_id, total }, {withCredentials: true});
           if(res.data.success){
+             console.log(res.data)
              toast.success("Your order is placed!")
              navigateTo('/paymentSuccess')
           }

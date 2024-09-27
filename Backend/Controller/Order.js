@@ -8,6 +8,62 @@ import Product from "../Models/Products.js";
 import User from "../Models/Users.js";
 import moment from "moment";
 import { redisClient } from "../index.js";
+import axios from "axios";
+import '../Services/Config.js'
+
+const SHIPPO_API_KEY = process.env.SHIPPO_API_KEY;
+
+const shippingDetails = async(req, res)=>{
+  const { userDetails } = req.body;
+  const { street1, city, state, pincode } = userDetails;
+
+  try {
+    const response = await axios.post("https://api.goshippo.com/shipments/", {
+      address_from: {
+        street1: 'Galaxy Circle, Adajan Gam Road, Pal gam',
+        city: "Surat",
+        State: "Gujarat",
+        zip: "395009", 
+        country: "India"
+      },
+      address_to: {
+        street1: street1,
+        city: city,
+        State: state,
+        zip: pincode,
+        country: "India"
+      },
+      parcels: [
+        {
+            length: '10',
+            width: '7',
+            height: '5',
+            distance_unit: 'in',
+            weight: '2',
+            mass_unit: 'lb',
+        }
+      ],
+      async: false,
+    }, {
+      withCredentials: true,
+      headers: {
+        'Authorization': `ShippoToken ${SHIPPO_API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const shippingDetails = response.data.rates.map((rate) => ({
+      carrier: rate.provider,
+      service: rate.servicelevel.name,
+      rate: rate.amount,
+      estimated_days: rate.estimated_days,
+    }));
+
+    return shippingDetails;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -87,9 +143,12 @@ export const completePayment = async (req, res, next) => {
 
   redisClient.rPush("newOrder", JSON.stringify(notification))
 
+  const getShippingDetails = await shippingDetails(req, res);
+
   if (deleteItem) {
     return res.status(200).json({
       success: true,
+      shippingDetails: getShippingDetails,
     });
   } else {
     return res.status(400).json({
@@ -353,3 +412,4 @@ export const getOrdersByUser = async (req, res, next) => {
     orders: order,
   });
 };
+
