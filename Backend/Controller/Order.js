@@ -9,6 +9,7 @@ import User from "../Models/Users.js";
 import moment from "moment";
 import { redisClient } from "../index.js";
 import "../Services/Config.js";
+import nodemailer from "nodemailer";
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -54,6 +55,34 @@ export const verifyPayment = async (req, res, next) => {
   }
 };
 
+const sendEmail = async (email) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.USER_MAIL,
+      pass: process.env.USER_PASS,
+    },
+  });
+
+  const mailOption = {
+    from: process.env.USER_MAIL,
+    to: email,
+    subject: `New Order!`,
+    html: `<h1>New Order Received! Hope you enjoyed your grocery shopping experience! Hope to see you again soon!</h1>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOption);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 export const completePayment = async (req, res, next) => {
   const { userDetails, razorpay_order_id, total } = req.body;
   const userId = req.user.id;
@@ -81,24 +110,20 @@ export const completePayment = async (req, res, next) => {
   const populateOrder = await newOrder.populate("products user");
 
   for (let item of cartItems) {
-      const product = await Product.findById(item.productId);
-      
-      if (!product) return next(new ErrorHandler("Product not found", 400));
-      
-      const currentQuantity = Number(product.quantity);
-      const itemQuantity = Number(item.quantity);
+    const product = await Product.findById(item.productId);
 
-      console.log(currentQuantity); 
-      console.log(itemQuantity);
-      console.log(currentQuantity - itemQuantity);
-      if(!isNaN(currentQuantity) && !isNaN(itemQuantity)){
-        await Product.findByIdAndUpdate(item.productId._id, {
-          $set: { quantity: (currentQuantity - itemQuantity).toString() },
-        });
-      }
-      else {
-        return next(new ErrorHandler("Not enough quantity!", 400));
-      }
+    if (!product) return next(new ErrorHandler("Product not found", 400));
+
+    const currentQuantity = Number(product.quantity);
+    const itemQuantity = Number(item.quantity);
+
+    if (!isNaN(currentQuantity) && !isNaN(itemQuantity)) {
+      await Product.findByIdAndUpdate(item.productId._id, {
+        $set: { quantity: (currentQuantity - itemQuantity).toString() },
+      });
+    } else {
+      return next(new ErrorHandler("Not enough quantity!", 400));
+    }
   }
 
   const deleteItem = await Cart.deleteMany({ userId });
@@ -112,10 +137,18 @@ export const completePayment = async (req, res, next) => {
   redisClient.rPush("newOrder", JSON.stringify(notification));
 
   if (deleteItem) {
-    return res.status(200).json({
-      success: true,
-      order: populateOrder,
-    });
+    const email = populateOrder.user.email;
+    const isSent = await sendEmail(email);
+    if (isSent) {
+      return res.status(200).json({
+        success: true,
+        order: populateOrder,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+      });
+    }
   } else {
     return res.status(400).json({
       success: false,
@@ -393,7 +426,9 @@ export const checkCartQuantity = async (req, res, next) => {
       if (!product) return next(new ErrorHandler("Product not found", 400));
 
       if (product.quantity < item.quantity)
-        return next(new ErrorHandler(`Not enough quantity of ${product.name}`, 400));
+        return next(
+          new ErrorHandler(`Not enough quantity of ${product.name}`, 400)
+        );
     }
 
     return res.status(200).json({

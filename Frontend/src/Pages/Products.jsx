@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCard from "../Components/ProductCard";
+import Loader from "../Components/Loader";
 
 const Product = () => {
   const [product, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [ isLoading, setIsLoading ] = useState(false)
 
   const fetchProducts = async (query) => {
+    setIsLoading(true)
     try {
       const response = query
       ? await axios.get(`http://localhost:8000/api/v1/product/filterProduct?filter=${searchQuery}`)
@@ -15,6 +18,8 @@ const Product = () => {
     } catch (err) {
       console.error(err);
       setProducts([]);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -23,6 +28,7 @@ const Product = () => {
   }, [searchQuery]);
 
   return (
+    isLoading ? <Loader/> : 
     <>
       <div className="container pt-5">
         {searchQuery.trim() === '' ? (
