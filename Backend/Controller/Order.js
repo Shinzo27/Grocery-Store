@@ -8,7 +8,7 @@ import Product from "../Models/Products.js";
 import User from "../Models/Users.js";
 import moment from "moment";
 import { redisClient } from "../index.js";
-import '../Services/Config.js'
+import "../Services/Config.js";
 
 export const checkout = async (req, res, next) => {
   const { amount } = req.body;
@@ -78,17 +78,38 @@ export const completePayment = async (req, res, next) => {
     orderId: razorpay_order_id,
   });
 
-  const populateOrder = await newOrder.populate('products user')
+  const populateOrder = await newOrder.populate("products user");
+
+  for (let item of cartItems) {
+      const product = await Product.findById(item.productId);
+      
+      if (!product) return next(new ErrorHandler("Product not found", 400));
+      
+      const currentQuantity = Number(product.quantity);
+      const itemQuantity = Number(item.quantity);
+
+      console.log(currentQuantity); 
+      console.log(itemQuantity);
+      console.log(currentQuantity - itemQuantity);
+      if(!isNaN(currentQuantity) && !isNaN(itemQuantity)){
+        await Product.findByIdAndUpdate(item.productId._id, {
+          $set: { quantity: (currentQuantity - itemQuantity).toString() },
+        });
+      }
+      else {
+        return next(new ErrorHandler("Not enough quantity!", 400));
+      }
+  }
 
   const deleteItem = await Cart.deleteMany({ userId });
 
   const notification = {
     orderId: newOrder._id,
     message: "New Order Received",
-    time: newOrder.createdAt.toString().trim().slice(0, 10)
-  }
+    time: newOrder.createdAt.toString().trim().slice(0, 10),
+  };
 
-  redisClient.rPush("newOrder", JSON.stringify(notification))
+  redisClient.rPush("newOrder", JSON.stringify(notification));
 
   if (deleteItem) {
     return res.status(200).json({
@@ -211,7 +232,7 @@ export const getSalesData = async (req, res) => {
         $match: {
           createdAt: {
             $gte: last5Days[0].toDate(),
-            $lte: new Date(), 
+            $lte: new Date(),
           },
         },
       },
@@ -249,28 +270,28 @@ export const getProductCategory = async (req, res, next) => {
     const categoryCounts = await Product.aggregate([
       {
         $group: {
-          _id: '$category', // Group by category reference (which is an ObjectId)
-          count: { $sum: 1 } // Count products per category
-        }
+          _id: "$category", // Group by category reference (which is an ObjectId)
+          count: { $sum: 1 }, // Count products per category
+        },
       },
       {
         $lookup: {
-          from: 'categories', // The Category collection name
-          localField: '_id', // The ObjectId reference to the category
-          foreignField: '_id', // The ObjectId field in the Category collection
-          as: 'categoryInfo' // The new field to hold the joined data
-        }
+          from: "categories", // The Category collection name
+          localField: "_id", // The ObjectId reference to the category
+          foreignField: "_id", // The ObjectId field in the Category collection
+          as: "categoryInfo", // The new field to hold the joined data
+        },
       },
       {
-        $unwind: '$categoryInfo' // Unwind the array result of $lookup to get the actual category document
+        $unwind: "$categoryInfo", // Unwind the array result of $lookup to get the actual category document
       },
       {
         $project: {
-          categoryName: '$categoryInfo.name', // Only include the category name
-          count: 1 // Include the product count
-        }
-      }
-    ])
+          categoryName: "$categoryInfo.name", // Only include the category name
+          count: 1, // Include the product count
+        },
+      },
+    ]);
 
     const totalProducts = categoryCounts.reduce(
       (sum, category) => sum + category.count,
@@ -279,7 +300,7 @@ export const getProductCategory = async (req, res, next) => {
 
     const categoryPercentages = categoryCounts.map((category) => ({
       category: category.categoryName,
-      percentage: ((category.count / totalProducts) * 100).toFixed(2) // Format to 2 decimal places
+      percentage: ((category.count / totalProducts) * 100).toFixed(2), // Format to 2 decimal places
     }));
 
     res.status(200).json(categoryPercentages);
@@ -291,7 +312,10 @@ export const getProductCategory = async (req, res, next) => {
 
 export const getLastFiveOrders = async (req, res, next) => {
   try {
-    const last5Orders = await Order.find({}).sort({ createdAt: -1 }).limit(5).populate('user');
+    const last5Orders = await Order.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user");
 
     return res.json({
       orders: last5Orders.map((order) => ({
@@ -299,53 +323,55 @@ export const getLastFiveOrders = async (req, res, next) => {
         date: order.createdAt,
         status: order.status,
         total: order.total,
-      }))
-    })
+      })),
+    });
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 export const getLessQuantityProducts = async (req, res, next) => {
   try {
     const lowStockProducts = await Product.find()
-            .exec()
-            .then(products => products.filter(product => parseInt(product.quantity) < 5));
+      .exec()
+      .then((products) =>
+        products.filter((product) => parseInt(product.quantity) < 5)
+      );
     return res.json({
       products: lowStockProducts.map((product) => ({
         name: product.name,
         quantity: product.quantity,
-      }))
-    })
+      })),
+    });
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-export const getNotification = async(req,res,next)=>{
-  try{
-    const result = await redisClient.lRange("newOrder",0,-1)
-    const parsedResult = result.map(item => JSON.parse(item));
-    if(parsedResult.length === 0){
+export const getNotification = async (req, res, next) => {
+  try {
+    const result = await redisClient.lRange("newOrder", 0, -1);
+    const parsedResult = result.map((item) => JSON.parse(item));
+    if (parsedResult.length === 0) {
       return res.status(200).json({
-        notifications: []
-      })
+        notifications: [],
+      });
     } else {
       return res.json({
-        notifications: parsedResult
-      })
+        notifications: parsedResult,
+      });
     }
-  }catch(error){
-    console.log(error)
+  } catch (error) {
+    console.log(error);
   }
-}
+};
 
 export const clearNotification = async (req, res, next) => {
-  const result = await redisClient.del('newOrder');
+  const result = await redisClient.del("newOrder");
   return res.status(200).json({
-    message: 'Notifications cleared successfully',
+    message: "Notifications cleared successfully",
   });
-}
+};
 
 export const getOrdersByUser = async (req, res, next) => {
   const order = await Order.find({ user: req.user.id }).populate(
@@ -358,3 +384,22 @@ export const getOrdersByUser = async (req, res, next) => {
   });
 };
 
+export const checkCartQuantity = async (req, res, next) => {
+  const cartItems = await Cart.find({ userId: req.user.id });
+  try {
+    for (let item of cartItems) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) return next(new ErrorHandler("Product not found", 400));
+
+      if (product.quantity < item.quantity)
+        return next(new ErrorHandler(`Not enough quantity of ${product.name}`, 400));
+    }
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return next(new ErrorHandler("Something went wrong", 400));
+  }
+};

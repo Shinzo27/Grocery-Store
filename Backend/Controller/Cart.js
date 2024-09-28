@@ -44,6 +44,8 @@ export const addToCart = async (req,res, next) => {
             message: "Product added to the cart successfully!"
         })
     } else {
+        console.log(quantity)
+        console.log(prod.quantity)
         return next(new ErrorHandler("Not enough quantity!", 400))
     }
 }

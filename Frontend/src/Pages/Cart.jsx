@@ -67,8 +67,17 @@ const Cart = () => {
   }
 
   const checkoutHandler = () =>{
-    navigateTo('/userdetails', { state: total})
-    // <Navigate to={'/userdetails'} state={total}/>
+    const checkCartQuantity = async () => {
+      try {
+        const { data } = await axios.post('http://localhost:8000/api/v1/checkout/checkCartQuantity', {}, {withCredentials: true})
+        if(data.success){
+          navigateTo('/userdetails', { state: total})
+        }
+      } catch (error) {
+        toast.error(error.response.data.message)
+      }
+    }
+    checkCartQuantity()
   }
 
   if(!user || user.role !== 'Customer') return <Navigate to={'/'}/>

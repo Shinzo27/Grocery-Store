@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 const PaymentSuccess = () => {
   const date = new Date()
@@ -9,7 +9,9 @@ const PaymentSuccess = () => {
   const fulldate = (day + 2) + "-" + month + "-" + year
   const location = useLocation()
   const orderDetails = location.state || "";
+  const navigateTo = useNavigate()
 
+  if(!orderDetails) return <Navigate to={'/'}/>
   return (
     <>
       <div className="min-h-screen  dark:bg-gray-900 p-4">
@@ -66,7 +68,7 @@ const PaymentSuccess = () => {
           </div>
         </div>
         <div className="flex justify-end mt-6">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Home</button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md" onClick={()=>navigateTo('/')}>Home</button>
         </div>
       </div>
     </div>

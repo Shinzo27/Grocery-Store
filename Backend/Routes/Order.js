@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkout, clearNotification, completePayment, getLastFiveOrders, getLessQuantityProducts, getNotification, getOrders, getOrdersByUser, getProductCategory, getSalesData, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
+import { checkCartQuantity, checkout, clearNotification, completePayment, getLastFiveOrders, getLessQuantityProducts, getNotification, getOrders, getOrdersByUser, getProductCategory, getSalesData, getSingleOrder, getStats, updateOrderStatus, verifyPayment } from '../Controller/Order.js'
 import { isCustomerAuthenticated } from '../Middleware/Auth.js'
 
 const router = express.Router()
@@ -18,5 +18,6 @@ router.get('/getLessQuantityProducts', getLessQuantityProducts)
 router.get('/getNotification', getNotification)
 router.delete('/clearNotification', clearNotification)
 router.get('/getOrdersByUser', isCustomerAuthenticated, getOrdersByUser)
+router.post('/checkCartQuantity', isCustomerAuthenticated, checkCartQuantity)
 
 export default router
