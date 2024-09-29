@@ -12,12 +12,12 @@ COPY . .
 
 RUN chown -R node:node /app && chmod -R 755 /app
 
-RUN npm install pm2 -g
+RUN npm install -g pm2 
 
-COPY ecosystem.config.js .
+COPY ecosystem.config.cjs .
 
 USER node
 
 EXPOSE 5513
 
-CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]
+CMD [ "pm2-runtime", "start", "ecosystem.config.cjs" ]
