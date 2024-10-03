@@ -16,5 +16,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd Backend
+          cd Backend/.github/workflows
           gh workflow run deploy.yml
