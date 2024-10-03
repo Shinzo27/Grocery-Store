@@ -1,6 +1,6 @@
 services:
   backend:
-    image: pratham246/grocery-backend:v1
+    image: pratham246/grocery-backend:latest
     container_name: grocery-backend
     ports:
       - 5513:5513
@@ -8,8 +8,8 @@ services:
       - backendNetwork
     env_file:
       - .env
-    depends_on:
-      - []
+    restart: always
+
 networks:
   backendNetwork:
     driver: bridge
