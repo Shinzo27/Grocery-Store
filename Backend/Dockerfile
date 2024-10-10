@@ -2,22 +2,36 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-ENV NODE_ENV=production
-
-RUN npm ci
+RUN npm install
 
 COPY . .
 
-RUN chown -R node:node /app && chmod -R 755 /app
+EXPOSE 8000
 
-RUN npm install -g pm2 
+CMD ["npm", "start"]
 
-COPY ecosystem.config.cjs .
+# FROM node:18-alpine
 
-USER node
+# WORKDIR /app
 
-EXPOSE 5513
+# COPY package*.json ./
 
-CMD [ "pm2-runtime", "start", "ecosystem.config.cjs" ]
+# ENV NODE_ENV=production
+
+# RUN npm ci
+
+# COPY . .
+
+# RUN chown -R node:node /app && chmod -R 755 /app
+
+# RUN npm install -g pm2 
+
+# COPY ecosystem.config.cjs .
+
+# USER node
+
+# EXPOSE 5513
+
+# CMD [ "pm2-runtime", "start", "ecosystem.config.cjs" ]
