@@ -55,7 +55,8 @@ redisClient.connect()
 export const instance = new Razorpay({
     key_id: process.env.RAZORPAY_API_KEY,
     key_secret: process.env.RAZORPAY_APT_SECRET,
-  });
+});
+
 
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
