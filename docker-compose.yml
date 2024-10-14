@@ -2,7 +2,7 @@ services:
   backend:
     build: ./Backend
     ports:
-      - 8000:8000
+      - "8000:8000"
     environment:
       - NODE_ENV=development
   
@@ -18,7 +18,7 @@ services:
   admin:
     build: ./admin
     ports:
-      - 3001:3001
+      - "8001:8001"
     environment:
       - NODE_ENV=development
     depends_on:
