@@ -11,7 +11,7 @@ const OrderDetail = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get(`http://localhost:8000/api/v1/checkout/singleOrder/${params.id}`, {
+      const { data } = await axios.get(`/api/v1/checkout/singleOrder/${params.id}`, {
         withCredentials: true,
       });
       console.log(data.order);

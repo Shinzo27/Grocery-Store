@@ -10,7 +10,7 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get("http://localhost:8000/api/v1/checkout/getOrdersByUser", {
+      const { data } = await axios.get("/api/v1/checkout/getOrdersByUser", {
         withCredentials: true,
       });
       setOrders(data.orders);

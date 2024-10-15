@@ -12,8 +12,8 @@ const Product = () => {
     setIsLoading(true)
     try {
       const response = query
-      ? await axios.get(`http://localhost:8000/api/v1/product/filterProduct?filter=${searchQuery}`)
-      : await axios.get('http://localhost:8000/api/v1/product/categoryProduct');
+      ? await axios.get(`/api/v1/product/filterProduct?filter=${searchQuery}`)
+      : await axios.get('/api/v1/product/categoryProduct');
       setProducts(response.data.product);
     } catch (err) {
       console.error(err);

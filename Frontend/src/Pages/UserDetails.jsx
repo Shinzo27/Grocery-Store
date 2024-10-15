@@ -31,13 +31,13 @@ const UserDetails = () => {
       const {
         data: { order },
       } = await axios.post(
-        "http://localhost:8000/api/v1/checkout/createOrder",
+        "/api/v1/checkout/createOrder",
         { amount: total },
         { withCredentials: true }
       );
 
       const options = {
-        key: "rzp_test_ObIKOxkah2XMbc",
+        key: "rzp_test_rmgYRuwxYA2wq5",
         amount: order.amount,
         currency: "INR",
         name: "Patel's Dryfruit and Masala",
@@ -82,13 +82,13 @@ const UserDetails = () => {
 
     try {
       const verifyResponse = await axios.post(
-        "http://localhost:8000/api/v1/checkout/verifyPayment",
+        "/api/v1/checkout/verifyPayment",
         paymentData
       );
       const verifyData = verifyResponse.data;
       if (verifyData.success) {
         const res = await axios.post(
-          "http://localhost:8000/api/v1/checkout/complete",
+          "/api/v1/checkout/complete",
           {
             userDetails,
             razorpay_order_id: paymentData.razorpay_order_id,
